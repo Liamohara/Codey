@@ -8,7 +8,13 @@
 
 ---
 
-## Getting Started
+## Get Started
+Download the latest [Release](https://github.com/Liamohara/Codey/releases/tag/latest)!
+
+&nbsp;
+
+## Contribute
+All contributers welcome! Just make a pull request and I will review it shortly.
 
 ### Download Repo
 Clone this repo to a folder on your device. Here we'll use `$HOME/codey`(MacOS/Linux) and `%userprofile%/codey`(Windows).
@@ -26,15 +32,15 @@ git clone https://github.com/Liamohara/Codey.git Codey
 2. Open the directory where you have installed the source code.
 * MacOS/Linux
 ```sh
-cd $HOME/Codey/
+cd $HOME/Codey
 ```
 * Windows
 ```sh
-cd /D %userprofile%/Codey/
+cd /D %userprofile%/Codey
 ```
 3. Install the dependencies.
 ```sh
-npm install
+npm i
 ```
 4. Run Codey.
 ```sh
@@ -47,20 +53,11 @@ npm run package
 6. The binaries have now been saved to `./out`!
 * MacOS/Linux
 ```sh
-cd $HOME/Codey/out/
+cd $HOME/Codey/out
 ls
 ```
 * Windows
 ```sh
-cd /D %userprofile%/Codey/out/
+cd /D %userprofile%/Codey/out
 dir
-```
-7. Copy the application from the `./out` directory to your applications folder.
-* MacOS/Linux
-```sh
-cp -r Codey-darwin-x64/Codey.app /Applications/
-```
-* Windows
-```sh
-cp ... C:/"Program Files"
 ```
