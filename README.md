@@ -47,12 +47,12 @@ npm run package
 6. The binaries have now been saved to `./out`!
 * MacOS/Linux
 ```sh
-cd $HOME/Codey/dist/
+cd $HOME/Codey/out/
 ls
 ```
 * Windows
 ```sh
-cd /D %userprofile%/Codey/dist/
+cd /D %userprofile%/Codey/out/
 dir
 ```
 7. Copy the application from the `./out` directory to your applications folder.
