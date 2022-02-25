@@ -1,5 +1,7 @@
 # Codey
 
+[![Build Release](https://github.com/Liamohara/Codey/actions/workflows/build_release.yml/badge.svg?branch=master)](https://github.com/Liamohara/Codey/actions/workflows/build_release.yml)
+
 > A simple, no-nonsense Python IDE.
 
 <img src="./screenshot.png" width="864">
@@ -12,23 +14,23 @@
 Clone this repo to a folder on your device. Here we'll use `$HOME/codey`(MacOS/Linux) and `%userprofile%/codey`(Windows).
 * MacOS/Linux
 ```sh
-git clone https://github.com/Liamohara/Codey.git "$HOME/codey"
+git clone https://github.com/Liamohara/Codey.git "$HOME/Codey"
 ```
 * Windows
 ```sh
 cd /D %userprofile%
-git clone https://github.com/Liamohara/Codey.git codey
+git clone https://github.com/Liamohara/Codey.git Codey
 ```
 ### Install
 1. Ensure that [Node.js](https://nodejs.org/en/download/) is installed.
 2. Open the directory where you have installed the source code.
 * MacOS/Linux
 ```sh
-cd $HOME/codey/
+cd $HOME/Codey/
 ```
 * Windows
 ```sh
-cd /D %userprofile%/codey/
+cd /D %userprofile%/Codey/
 ```
 3. Install the dependencies.
 ```sh
@@ -45,12 +47,12 @@ npm run package
 6. The binaries have now been saved to `./out`!
 * MacOS/Linux
 ```sh
-cd $HOME/codey/dist/
+cd $HOME/Codey/dist/
 ls
 ```
 * Windows
 ```sh
-cd /D %userprofile%/codey/dist/
+cd /D %userprofile%/Codey/dist/
 dir
 ```
 7. Copy the application from the `./out` directory to your applications folder.
