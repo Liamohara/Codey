@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <body class="is-h-100 is-clipped">
+    <title>Untitled</title>
+    <nav class="navbar is-light">
+      <div class="container">
+        <div class="navbar-start">
+          <div class="navbar-item hidden" id="file-dir-item">
+            <span class="icon-text">
+              <span class="icon">
+                <i class="fas fa-folder"></i>
+              </span>
+              <span id="file-dir"></span>
+            </span>
+          </div>
+          <div class="navbar-item">
+            <div class="button is-info is-rounded" id="open-file-btn">
+              Open File
+            </div>
+          </div>
+        </div>
+        <div class="navbar-end">
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link" id="open-docs-btn">Docs</a>
+            <div class="navbar-dropdown">
+              <a class="navbar-item" id="open-docs-overview-btn">Overview</a>
+              <a class="navbar-item" id="open-docs-elements-btn">Elements</a>
+              <a class="navbar-item" id="open-docs-components-btn">Components</a>
+              <hr class="navbar-divider" />
+              <div class="navbar-item">Version 1.0.0</div>
+            </div>
+          </div>
+          <div class="navbar-item">
+            <a class="button is-primary is-rounded" id="run-file-btn">
+              <span class="icon-text">
+                <span class="icon">
+                  <i class="fas fa-play fa-sm"></i>
+                </span>
+                <span>Run</span>
+              </span>
+            </a>
+          </div>
+          </div>
+        </div>
+      </div>
+      <div class="navbar-item">
+        <a class="button is-rounded is-light" id="toggle-dark-mode">
+          <span class="icon">
+            <i class="fas fa-moon" id="dark-mode-icon"></i>
+          </span>
+        </a>
+      </div>
+    </nav>
+    <main>
+      <div id="editor-pane"></div>
+      <div id="shell-pane"></div>
+    </main>
+  </body>
+</html>
