@@ -1,0 +1,96 @@
+{
+  "name": "Codey",
+  "version": "1.0.0",
+  "description": "A simple, no-nonsense Python IDE.",
+  "main": ".webpack/main",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Liam O'Hara",
+    "email": "liampohara@outlook.com"
+  },
+  "license": "MIT",
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "icon": "./assets/icon.icns"
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "electron_forge_webpack_app"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ],
+      "plugins": [
+        [
+          "@electron-forge/plugin-webpack",
+          {
+            "mainConfig": "./webpack_config/webpack.main.config.js",
+            "renderer": {
+              "config": "./webpack_config/webpack.renderer.config.js",
+              "entryPoints": [
+                {
+                  "html": "./src/editor/index.html",
+                  "js": "./src/editor/renderer.js",
+                  "name": "editor_window"
+                },
+                {
+                  "html": "./src/docs/index.html",
+                  "js": "./src/docs/renderer.js",
+                  "name": "docs_window"
+                }
+              ]
+            }
+          }
+        ]
+      ]
+    }
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.61",
+    "@electron-forge/maker-deb": "^6.0.0-beta.61",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.61",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
+    "@electron-forge/maker-zip": "^6.0.0-beta.61",
+    "@electron-forge/plugin-webpack": "^6.0.0-beta.61",
+    "@fortawesome/fontawesome-free": "^5.15.4",
+    "@vercel/webpack-asset-relocator-loader": "^1.7.0",
+    "bulma": "^0.9.3",
+    "css-loader": "^6.5.1",
+    "electron": "16.0.5",
+    "node-loader": "^2.0.0",
+    "node-sass": "^7.0.0",
+    "sass-loader": "^12.4.0",
+    "style-loader": "^3.3.1",
+    "system-font-css": "^2.0.2"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.0",
+    "monaco-editor": "^0.31.1",
+    "node-pty": "^0.10.1",
+    "xterm": "^4.17.0",
+    "xterm-addon-fit": "^0.5.0",
+    "xterm-addon-search": "^0.8.2"
+  }
+}
