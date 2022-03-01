@@ -16,10 +16,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16.4.0
-      - name: Remove package-lock.json
-        run: rm -f package.json
       - name: Install Node Modules
-        run: npm i
+        run: npm ci
       - name: Make
         run: npm run make
       - name: Rename File
