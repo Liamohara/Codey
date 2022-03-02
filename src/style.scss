@@ -26,7 +26,11 @@ $navbar-breakpoint: 400px;
 // HTML Tags
 
 body {
-  -webkit-user-select: none;
+  user-select: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 title {
@@ -87,6 +91,22 @@ main {
   position: relative;
   top: -6.65rem;
   visibility: hidden;
+}
+
+.disable-scrollbar {
+  &::-webkit-scrollbar {
+    min-height: 20px;
+    width: 12px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #2d343a7e;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #333940;
+  }
+
 }
 
 // IDs

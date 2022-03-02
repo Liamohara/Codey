@@ -94,4 +94,13 @@ contextBridge.exposeInMainWorld("api", {
       ipcRenderer.invoke("toggleDarkMode");
     },
   },
+
+  os: {
+    recieve: (func) => {
+      ipcRenderer.on("sendPlatform", func);
+    },
+    get: () => {
+      ipcRenderer.invoke("getPlatform");
+    },
+  }
 });

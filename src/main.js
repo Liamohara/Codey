@@ -10,13 +10,15 @@ const {
 } = require("electron");
 const createApplicationMenu = require("./application-menu");
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const pty = require("node-pty");
 
 // * Variable assignment *
 
 const editorWindows = new Map();
-const interpreter = "python3";
+const platform = os.platform();
+const interpreter = platform === "win32" ? "python.exe" : "python3";
 
 let docsWindow = null;
 let runFileName = null;
@@ -386,4 +388,9 @@ ipcMain.handle("openDocs", (event, section) => openDocsWindow(section));
 
 ipcMain.handle("toggleDarkMode", () => {
   toggleDarkMode();
+});
+
+ipcMain.handle("getPlatform", () => {
+  const targetWindow = BrowserWindow.getFocusedWindow();
+  targetWindow.webContents.send("sendPlatform", platform);
 });

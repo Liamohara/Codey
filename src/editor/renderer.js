@@ -48,6 +48,14 @@ shell.loadAddon(fitAddon);
 shell.open(shellPane);
 fitAddon.fit();
 
+window.api.os.get();
+window.api.os.recieve((event, os) => {
+  if (os === "win32") {
+    const shellViewport = document.querySelector(".xterm-viewport");
+    shellViewport.classList.toggle("disable-scrollbar");
+  }
+});
+
 // * Functions *
 
 function toggleDarkMode() {
