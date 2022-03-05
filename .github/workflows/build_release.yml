@@ -58,7 +58,7 @@ jobs:
           name: rpm-app
           path: "out/make/rpm/x64/Codey (RPM).rpm"
   make-windows:
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -67,8 +67,6 @@ jobs:
         with:
           node-version: 16.4.0
           cache: 'yarn'
-      - name: Configure NPM
-        run: npm config set msvs_version 2022
       - name: Install Node Modules
         run: yarn install --immutable --immutable-cache --check-cache
       - name: Make
