@@ -20,6 +20,8 @@ jobs:
         run: npm ci
       - name: Make
         run: npm run make
+      - name: Make x2
+        run: npm run make
       - name: Rename File
         run: mv out/make/zip/darwin/x64/Codey*.zip "out/make/zip/darwin/x64/Codey (macOS).zip"
       - name: Upload Artifact
