@@ -16,10 +16,12 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16.4.0
+          cache: 'yarn'
       - name: Install Node Modules
-        run: npm ci
+        run: yarn install
+#         run: yarn install --immutable --cache-immutable
       - name: Make
-        run: npm run make
+        run: yarn run make
       - name: Rename File
         run: mv out/make/zip/darwin/x64/Codey*.zip "out/make/zip/darwin/x64/Codey (macOS).zip"
       - name: Upload Artifact
@@ -37,7 +39,7 @@ jobs:
         with:
           node-version: 16.4.0
       - name: Install Node Modules
-        run: npm ci
+        run: npm i
       - name: Make
         run: npm run make
       - run: ls out/make/**/*
@@ -63,7 +65,7 @@ jobs:
         with:
           node-version: 16.4.0
       - name: Install Node Modules
-        run: npm ci
+        run: npm i
       - name: Make
         run: npm run make
       - name: Rename File
