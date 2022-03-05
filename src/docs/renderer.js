@@ -12,9 +12,7 @@ const body = document.body;
 const darkModeIcon = document.getElementById("dark-mode-icon");
 const darkModeToggle = document.getElementById("toggle-dark-mode");
 ("open-docs-btn");
-const titleBar = document.getElementsByTagName("title")[0];
 const navbar = document.querySelector(".navbar");
-const title = document.querySelector(".title");
 
 // * Functions *
 
@@ -30,17 +28,17 @@ function toggleDarkMode() {
 
 // * Event Listeners *
 
-darkModeToggle.addEventListener("click", window.api.toggleDarkMode.send);
+darkModeToggle.addEventListener("click", window.api.darkMode.toggle.send);
 
 // * API Listeners *
 
-window.api.jump((event, content) => {
+window.api.docs.jump((_event, content) => {
   window.location.hash = null;
   window.location.hash = content;
 });
 
-window.api.toggleDarkMode.recieve(toggleDarkMode);
+window.api.darkMode.toggle.recieve(toggleDarkMode);
 
-window.api.file.isOpen.get(() => {
-  window.api.file.isOpen.send(true);
-});
+window.api.file.isOpen((event) => event.sender.send("file:is-open", true));
+
+window.api.platform.isWindows(() => (body.id = "windows"));

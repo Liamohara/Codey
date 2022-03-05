@@ -16,7 +16,9 @@ const pty = require("node-pty");
 // * Variable assignment *
 
 const editorWindows = new Map();
-const interpreter = "python3";
+const platform = process.platform;
+const isWindows = platform === "win32";
+const interpreter = isWindows ? "python.exe" : "python3";
 
 let docsWindow = null;
 let runFileName = null;
@@ -52,7 +54,7 @@ function createEditorWindow() {
     height: 600,
     minWidth: 405,
     minHeight: 405,
-    titleBarStyle: "hidden",
+    titleBarStyle: isWindows ? true : "hidden",
     webPreferences: {
       preload: `${__dirname}/preload.js`,
     },
@@ -64,23 +66,27 @@ function createEditorWindow() {
 
   // Show window once it has finished initialising
   newWindow.once("ready-to-show", () => {
-    createApplicationMenu();
-
     initShell(editorWindows, newWindow);
 
     newWindow.show();
   });
 
-  newWindow.on("show", () => {
+  newWindow.once("show", () => {
     if (darkMode) {
-      newWindow.webContents.send("toggleDarkMode");
+      newWindow.webContents.send("dark-mode:toggle");
+    }
+
+    if (isWindows) {
+      newWindow.webContents.send("platform:is-windows");
     }
   });
+
+  newWindow.on("focus", () => createApplicationMenu(true));
 
   // When a window is closed.
   // 1. Remove it from the window set.
   // 2. Reload Application Menu
-  newWindow.on("closed", () => {
+  newWindow.once("closed", () => {
     editorWindows.delete(newWindow);
     newWindow = null;
     createApplicationMenu();
@@ -101,17 +107,20 @@ function initShell(editorWindows, newWindow) {
     if (runFileName) {
       runFileBuffer += data;
       if (runFileBuffer === runFileCmd + "\n") {
-        newWindow.webContents.send("stdout", `% RUN ${runFileName} %\r\n`);
+        newWindow.webContents.send(
+          "shell:stdout",
+          `% RUN ${runFileName} %\r\n`
+        );
         runFileName = null;
         runFileBuffer = "";
       }
     } else {
-      newWindow.webContents.send("stdout", data);
+      newWindow.webContents.send("shell:stdout", data);
     }
   });
 
   editorWindows.get(newWindow).on("exit", () => {
-    newWindow.webContents.send("clearShell");
+    newWindow.webContents.send("shell:clear");
     initShell(editorWindows, newWindow);
   });
 }
@@ -121,7 +130,7 @@ function openDocsWindow(section) {
     createDocsWindow(section);
   } else {
     docsWindow.focus();
-    docsWindow.webContents.send("jumpToSection", section);
+    docsWindow.webContents.send("docs:jump", section);
   }
 }
 
@@ -145,8 +154,8 @@ function createDocsWindow(section) {
     height: 600,
     minWidth: 405,
     minHeight: 405,
-    titleBarStyle: "hidden",
-    // icon: `${__dirname}/assets/icon.ico`,
+    titleBarStyle: isWindows ? true : "hidden",
+    icon: `${__dirname}/../assets/icon.png`, // For Linux
     webPreferences: {
       preload: `${__dirname}/preload.js`,
     },
@@ -165,24 +174,28 @@ function createDocsWindow(section) {
 
   docsWindow.once("show", () => {
     if (darkMode) {
-      docsWindow.webContents.send("toggleDarkMode");
+      docsWindow.webContents.send("dark-mode:toggle");
     }
 
-    docsWindow.webContents.send("jumpToSection", section);
+    if (isWindows) {
+      docsWindow.webContents.send("platform:is-windows");
+    }
+
+    docsWindow.webContents.send("docs:jump", section);
   });
+
+  docsWindow.on("browser-window-focus", createApplicationMenu);
 
   // When a window is closed.
   // 1. Remove it from the window set.
   // 2. Reload Application Menu
-  docsWindow.on("closed", () => {
+  docsWindow.once("closed", () => {
     docsWindow = null;
     createApplicationMenu();
   });
 }
 
-async function getFile(isEdited) {
-  const targetWindow = BrowserWindow.getFocusedWindow();
-
+async function getFile(targetWindow, isEdited) {
   const fileSelection = await showFileDialog(targetWindow);
 
   if (!fileSelection.canceled) {
@@ -230,17 +243,16 @@ function openFile(targetWindow, filePath) {
   const content = fs.readFileSync(filePath).toString();
   app.addRecentDocument(filePath);
   targetWindow.webContents.send(
-    "sendFile",
+    "file:open",
     path.basename(filePath),
     path.dirname(filePath),
     content
   );
-  createApplicationMenu();
+
+  createApplicationMenu(true);
 }
 
-async function saveFile(filePath, content) {
-  const targetWindow = BrowserWindow.getFocusedWindow();
-
+async function saveFile(targetWindow, filePath, content) {
   if (!filePath) {
     filePath = (await showSaveDialog(targetWindow)).filePath;
 
@@ -252,16 +264,15 @@ async function saveFile(filePath, content) {
     fs.writeFileSync(filePath, content);
   }
 
-  targetWindow.webContents.send("updateTitle");
+  targetWindow.webContents.send("title:update");
 
   return filePath;
 }
 
-async function runFile(filePath, content) {
-  const targetWindow = BrowserWindow.getFocusedWindow();
+async function runFile(targetWindow, filePath, content) {
   const shell = editorWindows.get(targetWindow);
 
-  filePath = await saveFile(filePath, content);
+  filePath = await saveFile(targetWindow, filePath, content);
 
   if (filePath) {
     runFileName = path.basename(filePath);
@@ -283,19 +294,19 @@ function showSaveDialog(targetWindow) {
 }
 
 function isEdited(targetWindow) {
-  return new Promise((resolve, reject) => {
-    targetWindow.webContents.send("isEdited");
-    ipcMain.handleOnce("isEdited", (event, isEdited) => {
+  return new Promise((resolve, _reject) => {
+    targetWindow.webContents.send("file:is-edited");
+    ipcMain.once("file:is-edited", (_event, isEdited) => {
       resolve(isEdited);
     });
   });
 }
 
 function isFileOpen(targetWindow) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     if (targetWindow) {
-      targetWindow.webContents.send("isFileOpen");
-      ipcMain.handleOnce("isFileOpen", (event, isFileOpen) => {
+      targetWindow.webContents.send("file:is-open");
+      ipcMain.once("file:is-open", (_event, isFileOpen) => {
         resolve(isFileOpen);
       });
     } else {
@@ -313,12 +324,12 @@ function toggleDarkMode() {
     nativeTheme.themeSource = "light";
   }
 
-  editorWindows.forEach((value, key) => {
-    key.webContents.send("toggleDarkMode");
+  editorWindows.forEach((value, window) => {
+    window.webContents.send("dark-mode:toggle");
   });
 
   if (docsWindow) {
-    docsWindow.webContents.send("toggleDarkMode");
+    docsWindow.webContents.send("dark-mode:toggle");
   }
 }
 
@@ -337,16 +348,13 @@ module.exports.runFile = runFile;
 // Create window and application menu onece electron has
 // finished intialisation and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", () => {
-  createEditorWindow();
-  createApplicationMenu();
-});
+app.on("ready", createEditorWindow);
 
 // Quit when all windows are closed, except on macOS.
 // On MacOS, keep applications and menu bar active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
+  if (platform !== "darwin") {
     app.quit();
   }
 });
@@ -361,29 +369,34 @@ app.on("activate", () => {
 
 // * Window API listeners *
 
-ipcMain.handle("getFile", (event, isEdited) => {
-  getFile(isEdited);
+ipcMain.handle("file:fetch", (event, isEdited) => {
+  const targetWindow = BrowserWindow.fromWebContents(event.sender);
+  getFile(targetWindow, isEdited);
 });
 
-ipcMain.handle("saveFile", (event, filePath, content) => {
-  saveFile(filePath, content);
+ipcMain.handle("file:save", (event, filePath, content) => {
+  const targetWindow = BrowserWindow.fromWebContents(event.sender);
+  saveFile(targetWindow, filePath, content);
 });
 
-ipcMain.handle("runFile", (event, filePath, content) => {
-  runFile(filePath, content);
+ipcMain.handle("file:run", (event, filePath, content) => {
+  const targetWindow = BrowserWindow.fromWebContents(event.sender);
+  runFile(targetWindow, filePath, content);
 });
 
-ipcMain.handle("showFile", (event, filePath) => {
+ipcMain.handle("file:show", (_event, filePath) => {
   shell.showItemInFolder(filePath);
 });
 
-ipcMain.handle("stdin", (event, data) => {
-  const targetWindow = BrowserWindow.getFocusedWindow();
+ipcMain.handle("shell:stdin", (event, data) => {
+  const targetWindow = BrowserWindow.fromWebContents(event.sender);
   editorWindows.get(targetWindow).write(data);
 });
 
-ipcMain.handle("openDocs", (event, section) => openDocsWindow(section));
+ipcMain.handle("docs:open", (_event, section) => openDocsWindow(section));
 
-ipcMain.handle("toggleDarkMode", () => {
+ipcMain.handle("dark-mode:toggle", () => {
   toggleDarkMode();
 });
+
+ipcMain.handle("platform", () => platform);

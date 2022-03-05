@@ -7,91 +7,78 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("api", {
   title: {
     update: (func) => {
-      ipcRenderer.on("updateTitle", func);
+      ipcRenderer.on("title:update", func);
     },
   },
 
   file: {
-    open: (isEdited) => {
-      ipcRenderer.invoke("getFile", isEdited);
+    fetch: (isEdited) => {
+      ipcRenderer.invoke("file:fetch", isEdited);
     },
-    recieve: (func) => {
-      ipcRenderer.on("sendFile", func);
+
+    open: (func) => {
+      ipcRenderer.on("file:open", func);
     },
+
     run: {
-      get: (func) => {
+      recieve: (func) => {
         ipcRenderer.on("runFile", func);
       },
       send: (filePath, content) => {
-        ipcRenderer.invoke("runFile", filePath, content);
+        ipcRenderer.invoke("file:run", filePath, content);
       },
     },
 
-    save: {
-      get: (func) => {
-        ipcRenderer.on("saveFile", func);
-      },
-      send: (file, content) => {
-        ipcRenderer.invoke("saveFile", file, content);
-      },
+    save: (func) => {
+      ipcRenderer.on("file:save", func);
     },
 
-    show: {
-      get: (func) => {
-        ipcRenderer.on("showFile", func);
-      },
-      send: (filePath) => {
-        ipcRenderer.invoke("showFile", filePath);
-      },
+    show: (func) => {
+      ipcRenderer.on("file:show", func);
     },
 
-    isEdited: {
-      get: (func) => {
-        ipcRenderer.on("isEdited", func);
-      },
-      send: (isEdited) => {
-        ipcRenderer.invoke("isEdited", isEdited);
-      },
+    isEdited: (func) => {
+      ipcRenderer.on("file:is-edited", func);
     },
 
-    isOpen: {
-      get: (func) => {
-        ipcRenderer.on("isFileOpen", func);
-      },
-      send: (isFileOpen) => {
-        ipcRenderer.invoke("isFileOpen", isFileOpen);
-      },
+    isOpen: (func) => {
+      ipcRenderer.on("file:is-open", func);
     },
   },
 
   shell: {
-    send: (data) => {
-      ipcRenderer.invoke("stdin", data);
+    stdin: (data) => {
+      ipcRenderer.invoke("shell:stdin", data);
     },
-    recieve: (func) => {
-      ipcRenderer.on("stdout", func);
+    stdout: (func) => {
+      ipcRenderer.on("shell:stdout", func);
     },
     clear: (func) => {
-      ipcRenderer.on("clearShell", func);
+      ipcRenderer.on("shell:clear", func);
     },
   },
 
   docs: {
     open: (section) => {
-      ipcRenderer.invoke("openDocs", section);
+      ipcRenderer.invoke("docs:open", section);
+    },
+    jump: (func) => {
+      ipcRenderer.on("docs:jump", func);
     },
   },
 
-  jump: (func) => {
-    ipcRenderer.on("jumpToSection", func);
+  darkMode: {
+    toggle: {
+      recieve: (func) => {
+        ipcRenderer.on("dark-mode:toggle", func);
+      },
+      send: () => {
+        ipcRenderer.invoke("dark-mode:toggle");
+      },
+    },
   },
 
-  toggleDarkMode: {
-    recieve: (func) => {
-      ipcRenderer.on("toggleDarkMode", func);
-    },
-    send: () => {
-      ipcRenderer.invoke("toggleDarkMode");
-    },
+  platform: {
+    isWindows: (func) => ipcRenderer.on("platform:is-windows", func),
   },
 });
