@@ -47,9 +47,7 @@ title {
 }
 
 main {
-  min-height: calc(100vh - 6.65rem);
   padding-top: 1rem;
-  overflow-y: auto;
 }
 
 // Classes
@@ -93,22 +91,6 @@ main {
   visibility: hidden;
 }
 
-.disable-scrollbar {
-  &::-webkit-scrollbar {
-    min-height: 20px;
-    width: 12px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: #2d343a7e;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: #333940;
-  }
-
-}
-
 // IDs
 
 #top-bar {
@@ -117,13 +99,39 @@ main {
 }
 
 #editor-pane {
-  height: calc(0.6 * (100vh - 6.5rem));
+  height: calc(0.6 * (100vh - 6.65rem));
 }
 
 #shell-pane {
-  height: calc(0.4 * (100vh - 6.5rem));
-}
-
-#shell-pane {
+  height: calc(0.4 * (100vh - 6.65rem));
   background-color: black;
+}
+
+#windows {
+  title {
+    display: none;
+  }
+
+  .xterm-viewport {
+    &::-webkit-scrollbar {
+      min-height: 20px;
+      width: 12px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: #2d343a7e;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: #333940;
+    }
+  }
+
+  #editor-pane {
+    height: calc(0.6 * (100vh - 4.95rem));
+  }
+
+  #shell-pane {
+    height: calc(0.4 * (100vh - 4.95rem));
+  }
 }

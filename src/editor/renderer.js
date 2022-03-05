@@ -48,14 +48,6 @@ shell.loadAddon(fitAddon);
 shell.open(shellPane);
 fitAddon.fit();
 
-window.api.os.get();
-window.api.os.recieve((event, os) => {
-  if (os === "win32") {
-    const shellViewport = document.querySelector(".xterm-viewport");
-    shellViewport.classList.toggle("disable-scrollbar");
-  }
-});
-
 // * Functions *
 
 function toggleDarkMode() {
@@ -104,14 +96,12 @@ function isEdited() {
 
 // * Event Listeners *
 
-editorPane.addEventListener("keyup", () => {
-  updateUI(isEdited());
-});
+editorPane.addEventListener("keyup", () => updateUI(isEdited()));
 
-darkModeToggle.addEventListener("click", window.api.toggleDarkMode.send);
+darkModeToggle.addEventListener("click", window.api.darkMode.toggle.send);
 
 openFileButton.addEventListener("click", () => {
-  window.api.file.open(isEdited());
+  window.api.file.fetch(isEdited());
 });
 
 runFileButton.addEventListener("click", () => {
@@ -133,26 +123,26 @@ openDocsComponentsButton.addEventListener("click", () => {
 });
 
 shell.onData((data) => {
-  window.api.shell.send(data);
+  window.api.shell.stdin(data);
 });
 
 window.addEventListener("resize", () => fitAddon.fit());
 
 // * API Listeners *
 
-window.api.file.recieve((event, file, fileDir, content) => {
+window.api.file.open((_event, file, fileDir, content) => {
   renderFile(file, fileDir, content);
 });
 
-window.api.file.isEdited.get(() => {
-  window.api.file.isEdited.send(isEdited());
+window.api.file.isEdited((event) => {
+  event.sender.send("file:is-edited", isEdited());
 });
 
-window.api.file.isOpen.get(() => {
-  window.api.file.isOpen.send(isFileOpen);
+window.api.file.isOpen((event) => {
+  event.sender.send("file:is-open", isFileOpen);
 });
 
-window.api.shell.recieve((event, data) => {
+window.api.shell.stdout((_event, data) => {
   shell.write(data);
 });
 
@@ -160,12 +150,12 @@ window.api.shell.clear(() => {
   shell.clear();
 });
 
-window.api.file.save.get(() => {
-  window.api.file.save.send(filePath, editor.getValue());
+window.api.file.save((event) => {
+  event.sender.send("file:save", filePath, editor.getValue());
 });
 
-window.api.file.run.get(() => {
-  window.api.file.run.send(filePath, editor.getValue());
+window.api.file.run.recieve((event) => {
+  event.sender.send("file:run", filePath, editor.getValue());
 });
 
 window.api.title.update(() => {
@@ -173,8 +163,10 @@ window.api.title.update(() => {
   updateUI(false);
 });
 
-window.api.file.show.get(() => {
-  window.api.file.show.send(filePath);
+window.api.file.show((event) => {
+  event.sender.send("file:show", filePath);
 });
 
-window.api.toggleDarkMode.recieve(toggleDarkMode);
+window.api.darkMode.toggle.recieve(toggleDarkMode);
+
+window.api.platform.isWindows(() => (body.id = "windows"));

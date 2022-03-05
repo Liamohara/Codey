@@ -1,7 +1,7 @@
 const { app, BrowserWindow, Menu } = require("electron");
 const mainProcess = require("./main");
 
-async function createApplicationMenu() {
+async function createApplicationMenu(editorWindowInFocus = false) {
   const hasOneOrMoreWindows = !!BrowserWindow.getAllWindows().length; // "!!" Sets boolean value - not necessary but cleaner
 
   const template = [
@@ -18,16 +18,16 @@ async function createApplicationMenu() {
         {
           label: "Open File",
           accelerator: "CmdOrCtrl+O",
-          async click(item, focusedWindow) {
-            const isFileOpen = await mainProcess.isFileOpen(focusedWindow);
-            if (focusedWindow && !isFileOpen) {
-              const isEdited = await mainProcess.isEdited(focusedWindow);
-              mainProcess.getFile(isEdited);
+          async click(_item, targetWindow) {
+            const isFileOpen = await mainProcess.isFileOpen(targetWindow);
+            if (targetWindow && !isFileOpen) {
+              const isEdited = await mainProcess.isEdited(targetWindow);
+              mainProcess.getFile(targetWindow, isEdited);
             } else {
               const newWindow = mainProcess.createEditorWindow();
 
-              newWindow.on("show", () => {
-                mainProcess.getFile(false);
+              newWindow.once("show", () => {
+                mainProcess.getFile(targetWindow, false);
               });
             }
           },
@@ -35,25 +35,25 @@ async function createApplicationMenu() {
         {
           label: "Save File",
           accelerator: "CmdOrCtrl+S",
-          enabled: hasOneOrMoreWindows,
-          click(item, focusedWindow) {
-            focusedWindow.webContents.send("saveFile");
+          enabled: editorWindowInFocus,
+          click(_item, targetWindow) {
+            targetWindow.webContents.send("file:save");
           },
         },
         {
           label: "Run File",
           accelerator: "CmdOrCtrl+R",
-          enabled: hasOneOrMoreWindows,
-          async click(item, focusedWindow) {
-            focusedWindow.webContents.send("runFile");
+          enabled: editorWindowInFocus,
+          async click(_item, targetWindow) {
+            targetWindow.webContents.send("file:run");
           },
         },
         { type: "separator" },
         {
           label: "Show File",
-          enabled: hasOneOrMoreWindows,
-          click(item, focusedWindow) {
-            focusedWindow.webContents.send("showFile");
+          enabled: editorWindowInFocus,
+          click(_item, targetWindow) {
+            targetWindow.webContents.send("file:show");
           },
         },
       ],
@@ -123,8 +123,9 @@ async function createApplicationMenu() {
         {
           label: "Toggle Developer Tools",
           accelerator: "CmdOrCtrl+Alt+I",
-          click(item, focusedWindow) {
-            if (focusedWindow) focusedWindow.webContents.toggleDevTools();
+          enabled: hasOneOrMoreWindows,
+          click(_item, targetWindow) {
+            targetWindow.webContents.toggleDevTools();
           },
         },
       ],
@@ -187,5 +188,3 @@ async function createApplicationMenu() {
 }
 
 module.exports = createApplicationMenu;
-
-// TODO Change shortcut for Docs
