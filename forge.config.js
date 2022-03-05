@@ -15,11 +15,15 @@ module.exports = {
     },
     {
       name: "@electron-forge/maker-deb",
-      config: {},
+      config: {
+        bin: "Codey"
+      },
     },
     {
       name: "@electron-forge/maker-rpm",
-      config: {},
+      config: {
+        bin: "Codey"
+      },
     },
   ],
   plugins: [
