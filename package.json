@@ -14,7 +14,7 @@
     "name": "Liam O'Hara",
     "email": "liampohara@outlook.com"
   },
-  "license": "MIT",
+  "license": "MPL-2.0",
   "config": {
     "forge": "./forge.config.js"
   },
