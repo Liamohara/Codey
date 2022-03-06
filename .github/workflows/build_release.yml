@@ -21,7 +21,8 @@ jobs:
         run: yarn install --immutable --immutable-cache --check-cache
       - name: Make
         run: yarn run make
-      - run: ls out/make/**/*
+      - run: ls **/*
+      - run: ls out/**/*
       - name: Rename File
         run: mv out/make/Codey*.dmg "out/make/Codey (macOS).dmg"
       - name: Upload Artifact
