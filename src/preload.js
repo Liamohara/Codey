@@ -79,6 +79,6 @@ contextBridge.exposeInMainWorld("api", {
   },
 
   platform: {
-    isWindows: (func) => ipcRenderer.on("platform:is-windows", func),
+    notDarwin: (func) => ipcRenderer.on("platform:not-darwin", func), // TODO Improve naming
   },
 });

@@ -107,7 +107,7 @@ main {
   background-color: black;
 }
 
-#windows {
+#custom {
   title {
     display: none;
   }
@@ -134,4 +134,4 @@ main {
   #shell-pane {
     height: calc(0.4 * (100vh - 4.95rem));
   }
-}
+} // TODO Improve naming

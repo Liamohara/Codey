@@ -5,6 +5,7 @@ const {
   BrowserWindow,
   dialog,
   ipcMain,
+  nativeImage,
   nativeTheme,
   shell,
 } = require("electron");
@@ -15,10 +16,11 @@ const pty = require("node-pty");
 
 // * Variable assignment *
 
+const appIcon = nativeImage.createFromPath(`${__dirname}/../assets/icon.png`);
 const editorWindows = new Map();
 const platform = process.platform;
-const isWindows = platform === "win32";
-const interpreter = isWindows ? "python.exe" : "python3";
+const isDarwin = platform === "darwin";
+const interpreter = platform === "windows" ? "python.exe" : "python3";
 
 let docsWindow = null;
 let runFileName = null;
@@ -54,7 +56,9 @@ function createEditorWindow() {
     height: 600,
     minWidth: 405,
     minHeight: 405,
-    titleBarStyle: isWindows ? true : "hidden",
+    titleBarStyle: !isDarwin ? true : "hidden",
+    icon: `${__dirname}/../assets/icon.png`,
+    // icon: appIcon,
     webPreferences: {
       preload: `${__dirname}/preload.js`,
     },
@@ -76,8 +80,8 @@ function createEditorWindow() {
       newWindow.webContents.send("dark-mode:toggle");
     }
 
-    if (isWindows) {
-      newWindow.webContents.send("platform:is-windows");
+    if (!isDarwin) {
+      newWindow.webContents.send("platform:not-darwin");
     }
   });
 
@@ -154,8 +158,9 @@ function createDocsWindow(section) {
     height: 600,
     minWidth: 405,
     minHeight: 405,
-    titleBarStyle: isWindows ? true : "hidden",
+    titleBarStyle: !isDarwin ? true : "hidden",
     icon: `${__dirname}/../assets/icon.png`, // For Linux
+    // icon: appIcon,
     webPreferences: {
       preload: `${__dirname}/preload.js`,
     },
@@ -177,8 +182,8 @@ function createDocsWindow(section) {
       docsWindow.webContents.send("dark-mode:toggle");
     }
 
-    if (isWindows) {
-      docsWindow.webContents.send("platform:is-windows");
+    if (!isDarwin) {
+      docsWindow.webContents.send("platform:not-darwin");
     }
 
     docsWindow.webContents.send("docs:jump", section);
