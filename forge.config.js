@@ -18,14 +18,12 @@ module.exports = {
       name: "@electron-forge/maker-deb",
       config: {
         name: "Codey",
-        bin: "Codey",
       },
     },
     {
       name: "@electron-forge/maker-rpm",
       config: {
         name: "Codey",
-        bin: "Codey",
       },
     },
   ],
