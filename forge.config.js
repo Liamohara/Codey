@@ -1,5 +1,6 @@
 module.exports = {
   packagerConfig: {
+    executableName: "Codey",
     icon: "./assets/icon",
   },
   makers: [
@@ -10,16 +11,26 @@ module.exports = {
       },
     },
     {
-      name: "@electron-forge/maker-zip",
-      platforms: ["darwin"],
+      name: "@electron-forge/maker-dmg",
+      config: {
+        background: "./assets/dmg-background.png",
+        format: "ULFO",
+        icon: "./assets/icon.icns",
+      },
     },
     {
       name: "@electron-forge/maker-deb",
-      config: {},
+      config: {
+        name: "Codey",
+        bin: "Codey",
+      },
     },
     {
       name: "@electron-forge/maker-rpm",
-      config: {},
+      config: {
+        name: "Codey",
+        bin: "Codey",
+      },
     },
   ],
   plugins: [

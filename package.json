@@ -1,5 +1,6 @@
 {
-  "name": "Codey",
+  "name": "codey",
+  "packageName": "Codey",
   "version": "1.0.0",
   "description": "A simple, no-nonsense Python IDE.",
   "main": ".webpack/main",
@@ -21,9 +22,9 @@
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.61",
     "@electron-forge/maker-deb": "^6.0.0-beta.61",
+    "@electron-forge/maker-dmg": "^6.0.0-beta.63",
     "@electron-forge/maker-rpm": "^6.0.0-beta.61",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
-    "@electron-forge/maker-zip": "^6.0.0-beta.61",
     "@electron-forge/plugin-webpack": "^6.0.0-beta.61",
     "@fortawesome/fontawesome-free": "^5.15.4",
     "@vercel/webpack-asset-relocator-loader": "^1.7.0",

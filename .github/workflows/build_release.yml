@@ -16,17 +16,18 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16.4.0
+          cache: 'yarn'
       - name: Install Node Modules
-        run: npm ci
+        run: yarn install --immutable --immutable-cache --check-cache
       - name: Make
-        run: npm run make
+        run: yarn run make
       - name: Rename File
-        run: mv out/make/zip/darwin/x64/Codey*.zip "out/make/zip/darwin/x64/Codey (macOS).zip"
+        run: mv out/make/codey*.dmg "out/make/Codey (macOS).dmg"
       - name: Upload Artifact
         uses: actions/upload-artifact@v2.3.1
         with:
           name: macos-app
-          path: "out/make/zip/darwin/x64/Codey (macOS).zip"
+          path: "out/make/Codey (macOS).dmg"
   make-linux:
     runs-on: ubuntu-latest
     steps:
@@ -36,11 +37,11 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16.4.0
+          cache: 'yarn'
       - name: Install Node Modules
-        run: npm ci
+        run: yarn install --immutable --immutable-cache --check-cache
       - name: Make
-        run: npm run make
-      - run: ls out/make/**/*
+        run: yarn run make
       - name: Rename Files
         run: |
           mv out/make/deb/x64/codey*.deb "out/make/deb/x64/Codey (Debian).deb"
@@ -56,16 +57,19 @@ jobs:
           name: rpm-app
           path: "out/make/rpm/x64/Codey (RPM).rpm"
   make-windows:
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v2
         with:
           node-version: 16.4.0
+          cache: 'yarn'
       - name: Install Node Modules
-        run: npm ci
+        run: yarn install --immutable --immutable-cache --check-cache
       - name: Make
-        run: npm run make
+        run: yarn run make
       - name: Rename File
         run: move out/make/squirrel.windows/x64/Codey*.exe "out/make/squirrel.windows/x64/Codey (Windows).exe"
       - name: Upload Artifact
@@ -85,6 +89,11 @@ jobs:
         uses: actions/download-artifact@v2.1.0
         with:
           name: macos-app
+          path: dist
+      - name: Download DEB App
+        uses: actions/download-artifact@v2.1.0
+        with:
+          name: deb-app
           path: dist
       - name: Download RPM App
         uses: actions/download-artifact@v2.1.0
