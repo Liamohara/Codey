@@ -1,5 +1,6 @@
 module.exports = {
   packagerConfig: {
+    executableName: "Codey",
     icon: "./assets/icon",
   },
   makers: [
