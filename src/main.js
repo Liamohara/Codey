@@ -87,8 +87,9 @@ function createEditorWindow() {
   // 1. Remove it from the window set.
   // 2. Reload Application Menu
   newWindow.once("closed", () => {
-    editorWindows.delete(newWindow);
-    newWindow = null;
+    // editorWindows.delete(newWindow);
+    // newWindow = null;
+
     createApplicationMenu();
   });
 
@@ -103,7 +104,9 @@ function initShell(editorWindows, newWindow) {
     pty.spawn(interpreter, [], { handleFlowControl: true })
   );
 
-  editorWindows.get(newWindow).on("data", (data) => {
+  const shell = editorWindows.get(newWindow);
+
+  shell.onData((data) => {
     if (runFileName) {
       runFileBuffer += data;
       if (runFileBuffer === runFileCmd + "\n") {
@@ -119,7 +122,7 @@ function initShell(editorWindows, newWindow) {
     }
   });
 
-  editorWindows.get(newWindow).on("exit", () => {
+  shell.onExit(() => {
     newWindow.webContents.send("shell:clear");
     initShell(editorWindows, newWindow);
   });
