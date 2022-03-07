@@ -17,8 +17,8 @@ const pty = require("node-pty");
 
 const editorWindows = new Map();
 const platform = process.platform;
-const isWindows = platform === "win32";
-const interpreter = isWindows ? "python.exe" : "python3";
+const isDarwin = platform === "darwin";
+const interpreter = platform === "win32" ? "python.exe" : "python3";
 
 let docsWindow = null;
 let runFileName = null;
@@ -54,7 +54,7 @@ function createEditorWindow() {
     height: 600,
     minWidth: 405,
     minHeight: 405,
-    titleBarStyle: isWindows ? true : "hidden",
+    titleBarStyle: !isDarwin ? true : "hidden",
     webPreferences: {
       preload: `${__dirname}/preload.js`,
     },
@@ -76,8 +76,8 @@ function createEditorWindow() {
       newWindow.webContents.send("dark-mode:toggle");
     }
 
-    if (isWindows) {
-      newWindow.webContents.send("platform:is-windows");
+    if (!isDarwin) {
+      newWindow.webContents.send("platform:not-darwin");
     }
   });
 
@@ -87,8 +87,9 @@ function createEditorWindow() {
   // 1. Remove it from the window set.
   // 2. Reload Application Menu
   newWindow.once("closed", () => {
-    editorWindows.delete(newWindow);
-    newWindow = null;
+    // editorWindows.delete(newWindow);
+    // newWindow = null;
+
     createApplicationMenu();
   });
 
@@ -103,7 +104,9 @@ function initShell(editorWindows, newWindow) {
     pty.spawn(interpreter, [], { handleFlowControl: true })
   );
 
-  editorWindows.get(newWindow).on("data", (data) => {
+  const shell = editorWindows.get(newWindow);
+
+  shell.onData((data) => {
     if (runFileName) {
       runFileBuffer += data;
       if (runFileBuffer === runFileCmd + "\n") {
@@ -119,7 +122,7 @@ function initShell(editorWindows, newWindow) {
     }
   });
 
-  editorWindows.get(newWindow).on("exit", () => {
+  shell.onExit(() => {
     newWindow.webContents.send("shell:clear");
     initShell(editorWindows, newWindow);
   });
@@ -154,8 +157,7 @@ function createDocsWindow(section) {
     height: 600,
     minWidth: 405,
     minHeight: 405,
-    titleBarStyle: isWindows ? true : "hidden",
-    icon: `${__dirname}/../assets/icon.png`, // For Linux
+    titleBarStyle: !isDarwin ? true : "hidden",
     webPreferences: {
       preload: `${__dirname}/preload.js`,
     },
@@ -177,8 +179,8 @@ function createDocsWindow(section) {
       docsWindow.webContents.send("dark-mode:toggle");
     }
 
-    if (isWindows) {
-      docsWindow.webContents.send("platform:is-windows");
+    if (!isDarwin) {
+      docsWindow.webContents.send("platform:not-darwin");
     }
 
     docsWindow.webContents.send("docs:jump", section);
@@ -374,17 +376,17 @@ ipcMain.handle("file:fetch", (event, isEdited) => {
   getFile(targetWindow, isEdited);
 });
 
-ipcMain.handle("file:save", (event, filePath, content) => {
+ipcMain.on("file:save", (event, filePath, content) => {
   const targetWindow = BrowserWindow.fromWebContents(event.sender);
   saveFile(targetWindow, filePath, content);
 });
 
-ipcMain.handle("file:run", (event, filePath, content) => {
+ipcMain.on("file:run", (event, filePath, content) => {
   const targetWindow = BrowserWindow.fromWebContents(event.sender);
   runFile(targetWindow, filePath, content);
 });
 
-ipcMain.handle("file:show", (_event, filePath) => {
+ipcMain.on("file:show", (_event, filePath) => {
   shell.showItemInFolder(filePath);
 });
 

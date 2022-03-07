@@ -154,7 +154,7 @@ window.api.file.save((event) => {
   event.sender.send("file:save", filePath, editor.getValue());
 });
 
-window.api.file.run.recieve((event) => {
+window.api.file.run((event) => {
   event.sender.send("file:run", filePath, editor.getValue());
 });
 
@@ -169,4 +169,4 @@ window.api.file.show((event) => {
 
 window.api.darkMode.toggle.recieve(toggleDarkMode);
 
-window.api.platform.isWindows(() => (body.id = "windows"));
+window.api.platform.notDarwin(() => (body.id = "not-darwin"));

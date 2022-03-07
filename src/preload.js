@@ -20,13 +20,8 @@ contextBridge.exposeInMainWorld("api", {
       ipcRenderer.on("file:open", func);
     },
 
-    run: {
-      recieve: (func) => {
-        ipcRenderer.on("runFile", func);
-      },
-      send: (filePath, content) => {
-        ipcRenderer.invoke("file:run", filePath, content);
-      },
+    run: (func) => {
+      ipcRenderer.on("file:run", func);
     },
 
     save: (func) => {
@@ -79,6 +74,6 @@ contextBridge.exposeInMainWorld("api", {
   },
 
   platform: {
-    isWindows: (func) => ipcRenderer.on("platform:is-windows", func),
+    notDarwin: (func) => ipcRenderer.on("platform:not-darwin", func),
   },
 });
