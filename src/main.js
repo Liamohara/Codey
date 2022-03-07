@@ -376,17 +376,17 @@ ipcMain.handle("file:fetch", (event, isEdited) => {
   getFile(targetWindow, isEdited);
 });
 
-ipcMain.handle("file:save", (event, filePath, content) => {
+ipcMain.on("file:save", (event, filePath, content) => {
   const targetWindow = BrowserWindow.fromWebContents(event.sender);
   saveFile(targetWindow, filePath, content);
 });
 
-ipcMain.handle("file:run", (event, filePath, content) => {
+ipcMain.on("file:run", (event, filePath, content) => {
   const targetWindow = BrowserWindow.fromWebContents(event.sender);
   runFile(targetWindow, filePath, content);
 });
 
-ipcMain.handle("file:show", (_event, filePath) => {
+ipcMain.on("file:show", (_event, filePath) => {
   shell.showItemInFolder(filePath);
 });
 

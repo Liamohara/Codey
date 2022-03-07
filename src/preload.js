@@ -20,13 +20,8 @@ contextBridge.exposeInMainWorld("api", {
       ipcRenderer.on("file:open", func);
     },
 
-    run: {
-      recieve: (func) => {
-        ipcRenderer.on("runFile", func);
-      },
-      send: (filePath, content) => {
-        ipcRenderer.invoke("file:run", filePath, content);
-      },
+    run: (func) => {
+      ipcRenderer.on("file:run", func);
     },
 
     save: (func) => {
