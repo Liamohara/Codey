@@ -18,7 +18,7 @@ const pty = require("node-pty");
 const editorWindows = new Map();
 const platform = process.platform;
 const isDarwin = platform === "darwin";
-const interpreter = platform === "windows" ? "python.exe" : "python3";
+const interpreter = platform === "win32" ? "python.exe" : "python3";
 
 let docsWindow = null;
 let runFileName = null;
