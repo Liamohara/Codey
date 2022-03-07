@@ -74,6 +74,6 @@ contextBridge.exposeInMainWorld("api", {
   },
 
   platform: {
-    notDarwin: (func) => ipcRenderer.on("platform:not-darwin", func), // TODO Improve naming
+    notDarwin: (func) => ipcRenderer.on("platform:not-darwin", func),
   },
 });
