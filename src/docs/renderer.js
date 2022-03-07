@@ -41,4 +41,4 @@ window.api.darkMode.toggle.recieve(toggleDarkMode);
 
 window.api.file.isOpen((event) => event.sender.send("file:is-open", true));
 
-window.api.platform.notDarwin(() => (body.id = "custom"));
+window.api.platform.notDarwin(() => (body.id = "not-darwin"));

@@ -5,7 +5,6 @@ const {
   BrowserWindow,
   dialog,
   ipcMain,
-  nativeImage,
   nativeTheme,
   shell,
 } = require("electron");
@@ -16,7 +15,6 @@ const pty = require("node-pty");
 
 // * Variable assignment *
 
-const appIcon = nativeImage.createFromPath(`${__dirname}/../assets/icon.png`);
 const editorWindows = new Map();
 const platform = process.platform;
 const isDarwin = platform === "darwin";
@@ -57,8 +55,6 @@ function createEditorWindow() {
     minWidth: 405,
     minHeight: 405,
     titleBarStyle: !isDarwin ? true : "hidden",
-    icon: `${__dirname}/../assets/icon.png`,
-    // icon: appIcon,
     webPreferences: {
       preload: `${__dirname}/preload.js`,
     },
@@ -159,8 +155,6 @@ function createDocsWindow(section) {
     minWidth: 405,
     minHeight: 405,
     titleBarStyle: !isDarwin ? true : "hidden",
-    icon: `${__dirname}/../assets/icon.png`, // For Linux
-    // icon: appIcon,
     webPreferences: {
       preload: `${__dirname}/preload.js`,
     },

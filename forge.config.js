@@ -1,21 +1,24 @@
 module.exports = {
   packagerConfig: {
     executableName: "Codey",
-    icon: "./assets/icon",
+    icon: "assets/icon",
   },
   makers: [
     {
       name: "@electron-forge/maker-squirrel",
       config: {
         name: "electron_forge_webpack_app",
+        setupIcon: "assets/icon.ico",
+        iconUrl:
+          "https://raw.githubusercontent.com/Liamohara/Codey/master/assets/icon.ico",
       },
     },
     {
       name: "@electron-forge/maker-dmg",
       config: {
-        background: "./assets/dmg-background.png",
+        background: "assets/dmg-background.png",
         format: "ULFO",
-        icon: "./assets/icon.icns",
+        icon: "assets/icon.icns",
       },
     },
     {
@@ -23,6 +26,7 @@ module.exports = {
       config: {
         name: "Codey",
         bin: "Codey",
+        icon: "assets/icon.png",
       },
     },
     {
@@ -30,6 +34,7 @@ module.exports = {
       config: {
         name: "Codey",
         bin: "Codey",
+        icon: "assets/icon.png",
       },
     },
   ],
