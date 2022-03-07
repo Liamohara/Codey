@@ -169,4 +169,4 @@ window.api.file.show((event) => {
 
 window.api.darkMode.toggle.recieve(toggleDarkMode);
 
-window.api.platform.isWindows(() => (body.id = "windows"));
+window.api.platform.notDarwin(() => (body.id = "not-darwin"));
