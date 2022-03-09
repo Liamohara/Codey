@@ -11,7 +11,6 @@ import "../style.scss";
 const body = document.body;
 const darkModeIcon = document.getElementById("dark-mode-icon");
 const darkModeToggle = document.getElementById("toggle-dark-mode");
-("open-docs-btn");
 const navbar = document.querySelector(".navbar");
 
 // * Functions *

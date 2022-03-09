@@ -15,7 +15,7 @@ const pty = require("node-pty");
 
 // * Variable assignment *
 
-const editorWindows = new Map();
+const ptyProcesses = new Object();
 const platform = process.platform;
 const isDarwin = platform === "darwin";
 const interpreter = platform === "windows" ? "python.exe" : "python3";
@@ -46,7 +46,7 @@ function createEditorWindow() {
   }
 
   // Create new window instance
-  newWindow = new BrowserWindow({
+  let newWindow = new BrowserWindow({
     x,
     y,
     name: "Codey",
@@ -66,16 +66,16 @@ function createEditorWindow() {
 
   // Show window once it has finished initialising
   newWindow.once("ready-to-show", () => {
-    initShell(editorWindows, newWindow);
+    if (darkMode) {
+      newWindow.webContents.send("dark-mode:toggle");
+    }
+
+    initPty(newWindow);
 
     newWindow.show();
   });
 
   newWindow.once("show", () => {
-    if (darkMode) {
-      newWindow.webContents.send("dark-mode:toggle");
-    }
-
     if (!isDarwin) {
       newWindow.webContents.send("platform:not-darwin");
     }
@@ -83,12 +83,32 @@ function createEditorWindow() {
 
   newWindow.on("focus", () => createApplicationMenu(true));
 
+  newWindow.on("close", async (event) => {
+    event.preventDefault();
+
+    let cancelled = 0;
+
+    if (await isEdited(newWindow)) {
+      cancelled = (
+        await showWarningDialog(
+          newWindow,
+          "Quit with unsaved changes?",
+          "Closing this window will lose all unsaved changes. Close anyways?"
+        )
+      ).response;
+    }
+
+    if (!cancelled) {
+      delete ptyProcesses[newWindow.id];
+      newWindow.destroy();
+    }
+  });
+
   // When a window is closed.
-  // 1. Remove it from the window set.
+  // 1. Wipe the BrowserWindow instance
   // 2. Reload Application Menu
   newWindow.once("closed", () => {
-    // editorWindows.delete(newWindow);
-    // newWindow = null;
+    newWindow = null;
 
     createApplicationMenu();
   });
@@ -96,17 +116,11 @@ function createEditorWindow() {
   return newWindow;
 }
 
-function initShell(editorWindows, newWindow) {
-  // Add window to windows set
-  editorWindows.set(
-    newWindow,
-    // Initialise node-pty process
-    pty.spawn(interpreter, [], { handleFlowControl: true })
-  );
+function initPty(newWindow) {
+  // Initialise node-pty process
+  const ptyProcess = pty.spawn(interpreter, [], { handleFlowControl: true });
 
-  const shell = editorWindows.get(newWindow);
-
-  shell.onData((data) => {
+  ptyProcess.onData((data) => {
     if (runFileName) {
       runFileBuffer += data;
       if (runFileBuffer === runFileCmd + "\n") {
@@ -122,10 +136,12 @@ function initShell(editorWindows, newWindow) {
     }
   });
 
-  shell.onExit(() => {
+  ptyProcess.onExit(() => {
     newWindow.webContents.send("shell:clear");
-    initShell(editorWindows, newWindow);
+    initPty(newWindow);
   });
+
+  ptyProcesses[newWindow.id] = ptyProcess;
 }
 
 function openDocsWindow(section) {
@@ -200,10 +216,10 @@ function createDocsWindow(section) {
 async function getFile(targetWindow, isEdited) {
   const fileSelection = await showFileDialog(targetWindow);
 
-  if (!fileSelection.canceled) {
-    let canceled = 0;
+  if (!fileSelection.cancelled) {
+    let cancelled = 0;
     if (isEdited) {
-      canceled = (
+      cancelled = (
         await showWarningDialog(
           targetWindow,
           "Overwrite Current Unsaved Changes?",
@@ -212,7 +228,7 @@ async function getFile(targetWindow, isEdited) {
       ).response;
     }
 
-    if (!canceled) {
+    if (!cancelled) {
       openFile(targetWindow, fileSelection.filePaths[0]);
     }
   }
@@ -222,6 +238,18 @@ function showFileDialog(targetWindow) {
   return dialog.showOpenDialog(targetWindow, {
     defaultPath: app.getPath("documents"),
     properties: ["openFile"],
+    filters: [
+      { name: "Python Files", extensions: ["py", "pyw"] },
+      { name: "Text Files", extensions: ["txt"] },
+      { name: "All Files", extensions: ["*"] },
+    ],
+  });
+}
+
+function showSaveDialog(targetWindow) {
+  return dialog.showSaveDialog(targetWindow, {
+    title: "Save File",
+    defaultPath: app.getPath("documents"),
     filters: [
       { name: "Python Files", extensions: ["py", "pyw"] },
       { name: "Text Files", extensions: ["txt"] },
@@ -272,27 +300,15 @@ async function saveFile(targetWindow, filePath, content) {
 }
 
 async function runFile(targetWindow, filePath, content) {
-  const shell = editorWindows.get(targetWindow);
+  const ptyProcess = ptyProcesses[targetWindow.id];
 
   filePath = await saveFile(targetWindow, filePath, content);
 
   if (filePath) {
     runFileName = path.basename(filePath);
     runFileCmd = `exec(open("${filePath}").read())\r`;
-    shell.write(runFileCmd);
+    ptyProcess.write(runFileCmd);
   }
-}
-
-function showSaveDialog(targetWindow) {
-  return dialog.showSaveDialog(targetWindow, {
-    title: "Save File",
-    defaultPath: app.getPath("documents"),
-    filters: [
-      { name: "Python Files", extensions: ["py", "pyw"] },
-      { name: "Text Files", extensions: ["txt"] },
-      { name: "All Files", extensions: ["*"] },
-    ],
-  });
 }
 
 function isEdited(targetWindow) {
@@ -326,13 +342,17 @@ function toggleDarkMode() {
     nativeTheme.themeSource = "light";
   }
 
-  editorWindows.forEach((value, window) => {
-    window.webContents.send("dark-mode:toggle");
+  // editorWindows.forEach((value, window) => {
+  //   window.webContents.send("dark-mode:toggle");
+  // });
+
+  BrowserWindow.getAllWindows().forEach((win) => {
+    win.webContents.send("dark-mode:toggle");
   });
 
-  if (docsWindow) {
-    docsWindow.webContents.send("dark-mode:toggle");
-  }
+  // if (docsWindow) {
+  //   docsWindow.webContents.send("dark-mode:toggle");
+  // }
 }
 
 // * Export modules *
@@ -343,62 +363,65 @@ module.exports.getFile = getFile;
 module.exports.isEdited = isEdited;
 module.exports.isFileOpen = isFileOpen;
 module.exports.saveFile = saveFile;
-module.exports.runFile = runFile;
+// module.exports.runFile = runFile;
 
 // * App API listeners *
 
 // Create window and application menu onece electron has
 // finished intialisation and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", createEditorWindow);
+app.whenReady().then(() => {
+  // * Window API listeners *
 
-// Quit when all windows are closed, except on macOS.
-// On MacOS, keep applications and menu bar active until the user quits
-// explicitly with Cmd + Q.
-app.on("window-all-closed", () => {
-  if (platform !== "darwin") {
-    app.quit();
-  }
+  ipcMain.handle("file:fetch", (event, isEdited) => {
+    const targetWindow = BrowserWindow.fromWebContents(event.sender);
+    getFile(targetWindow, isEdited);
+  });
+
+  ipcMain.on("file:save", (event, filePath, content) => {
+    const targetWindow = BrowserWindow.fromWebContents(event.sender);
+    saveFile(targetWindow, filePath, content);
+  });
+
+  ipcMain.on("file:run", (event, filePath, content) => {
+    const targetWindow = BrowserWindow.fromWebContents(event.sender);
+    runFile(targetWindow, filePath, content);
+  });
+
+  ipcMain.on("file:show", (_event, filePath) => {
+    shell.showItemInFolder(filePath);
+  });
+
+  ipcMain.handle("shell:stdin", (event, data) => {
+    const targetWindowId = BrowserWindow.fromWebContents(event.sender).id;
+    ptyProcesses[targetWindowId].write(data);
+    // editorWindows.get(targetWindow).write(data);
+  });
+
+  ipcMain.handle("docs:open", (_event, section) => openDocsWindow(section));
+
+  ipcMain.handle("dark-mode:toggle", () => {
+    toggleDarkMode();
+  });
+
+  ipcMain.handle("platform", () => platform);
+
+  createEditorWindow();
+
+  // Quit when all windows are closed, except on macOS.
+  // On MacOS, keep applications and menu bar active until the user quits
+  // explicitly with Cmd + Q.
+  app.on("window-all-closed", () => {
+    if (!isDarwin) {
+      app.quit();
+    }
+  });
+
+  app.on("activate", () => {
+    // Re-create a window on OS X when the
+    // dock icon is clicked and there are no other windows open.
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createEditorWindow();
+    }
+  });
 });
-
-app.on("activate", () => {
-  // Re-create a window on OS X when the
-  // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createEditorWindow();
-  }
-});
-
-// * Window API listeners *
-
-ipcMain.handle("file:fetch", (event, isEdited) => {
-  const targetWindow = BrowserWindow.fromWebContents(event.sender);
-  getFile(targetWindow, isEdited);
-});
-
-ipcMain.on("file:save", (event, filePath, content) => {
-  const targetWindow = BrowserWindow.fromWebContents(event.sender);
-  saveFile(targetWindow, filePath, content);
-});
-
-ipcMain.on("file:run", (event, filePath, content) => {
-  const targetWindow = BrowserWindow.fromWebContents(event.sender);
-  runFile(targetWindow, filePath, content);
-});
-
-ipcMain.on("file:show", (_event, filePath) => {
-  shell.showItemInFolder(filePath);
-});
-
-ipcMain.handle("shell:stdin", (event, data) => {
-  const targetWindow = BrowserWindow.fromWebContents(event.sender);
-  editorWindows.get(targetWindow).write(data);
-});
-
-ipcMain.handle("docs:open", (_event, section) => openDocsWindow(section));
-
-ipcMain.handle("dark-mode:toggle", () => {
-  toggleDarkMode();
-});
-
-ipcMain.handle("platform", () => platform);
