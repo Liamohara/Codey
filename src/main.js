@@ -81,7 +81,7 @@ function createEditorWindow() {
     }
   });
 
-  newWindow.on("focus", () => createApplicationMenu());
+  newWindow.on("focus", () => createApplicationMenu(true));
 
   // When a window is closed.
   // 1. Remove it from the window set.
@@ -251,7 +251,7 @@ function openFile(targetWindow, filePath) {
     content
   );
 
-  createApplicationMenu();
+  createApplicationMenu(true);
 }
 
 async function saveFile(targetWindow, filePath, content) {

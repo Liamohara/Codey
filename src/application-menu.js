@@ -1,8 +1,7 @@
 const { app, BrowserWindow, Menu } = require("electron");
 const mainProcess = require("./main");
 
-async function createApplicationMenu() {
-  const editorWindowInFocus = !!BrowserWindow.getFocusedWindow();
+async function createApplicationMenu(editorWindowInFocus = false) {
   const hasOneOrMoreWindows = !!BrowserWindow.getAllWindows().length; // "!!" Sets boolean value - not necessary but cleaner
 
   const template = [
