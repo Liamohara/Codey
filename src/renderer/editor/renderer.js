@@ -4,7 +4,7 @@
 
 // * Imports *
 
-import "../style.scss";
+import "../../style.scss";
 const monaco = require("monaco-editor");
 const monacoConfig = require("./monaco-config");
 const { Terminal } = require("xterm");
@@ -105,7 +105,7 @@ openFileButton.addEventListener("click", () => {
 });
 
 runFileButton.addEventListener("click", () => {
-  window.api.file.run.send(filePath, editor.getValue());
+  window.api.file.run(filePath, editor.getValue());
 });
 
 openDocsButton.addEventListener("click", window.api.docs.open);
@@ -134,6 +134,10 @@ window.api.file.open((_event, file, fileDir, content) => {
   renderFile(file, fileDir, content);
 });
 
+window.api.file.initRun(() => {
+  window.api.file.run(filePath, editor.getValue());
+});
+
 window.api.file.isEdited((event) => {
   event.sender.send("file:is-edited", isEdited());
 });
@@ -154,9 +158,9 @@ window.api.file.save((event) => {
   event.sender.send("file:save", filePath, editor.getValue());
 });
 
-window.api.file.run((event) => {
-  event.sender.send("file:run", filePath, editor.getValue());
-});
+// window.api.file.run((event) => {
+//   event.sender.send("file:run", filePath, editor.getValue());
+// });
 
 window.api.title.update(() => {
   originalContent = editor.getValue();

@@ -4,7 +4,7 @@
 
 // * Imports *
 
-import "../style.scss";
+import "../../style.scss";
 
 // * Variable assignment *
 
@@ -38,6 +38,6 @@ window.api.docs.jump((_event, content) => {
 
 window.api.darkMode.toggle.recieve(toggleDarkMode);
 
-window.api.file.isOpen((event) => event.sender.send("file:is-open", true));
+window.api.file.isOpen((event) => event.sender.send("file:is-open", true)); // TODO Needed?
 
 window.api.platform.notDarwin(() => (body.id = "not-darwin"));

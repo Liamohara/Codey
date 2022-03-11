@@ -4,7 +4,10 @@
 
 const { contextBridge, ipcRenderer } = require("electron");
 
+const api = require("../preload");
+
 contextBridge.exposeInMainWorld("api", {
+  ...api,
   title: {
     update: (func) => {
       ipcRenderer.on("title:update", func);
@@ -61,23 +64,5 @@ contextBridge.exposeInMainWorld("api", {
     open: (section) => {
       ipcRenderer.invoke("docs:open", section);
     },
-    jump: (func) => {
-      ipcRenderer.on("docs:jump", func);
-    },
-  },
-
-  darkMode: {
-    toggle: {
-      recieve: (func) => {
-        ipcRenderer.on("dark-mode:toggle", func);
-      },
-      send: () => {
-        ipcRenderer.invoke("dark-mode:toggle");
-      },
-    },
-  },
-
-  platform: {
-    notDarwin: (func) => ipcRenderer.on("platform:not-darwin", func), // TODO Improve naming
   },
 });
