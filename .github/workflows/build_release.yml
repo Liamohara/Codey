@@ -22,7 +22,7 @@ jobs:
       - name: Make
         run: yarn run make
       - name: Rename File
-        run: mv out/make/codey*.dmg "out/make/Codey (macOS).dmg"
+        run: mv out/make/Codey*.dmg "out/make/Codey (macOS).dmg"
       - name: Upload Artifact
         uses: actions/upload-artifact@v2.3.1
         with:
