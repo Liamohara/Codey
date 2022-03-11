@@ -1,6 +1,6 @@
 {
   "name": "codey",
-  "packageName": "Codey",
+  "productName": "Codey",
   "version": "1.0.0",
   "description": "A simple, no-nonsense Python IDE.",
   "main": ".webpack/main",
