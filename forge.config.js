@@ -49,17 +49,17 @@ module.exports = {
             {
               name: "editor_window",
               html: "./src/renderer/editor/index.html",
-              js: "./src/renderer/editor/renderer.js",
+              js: "./src/renderer/editor/renderer.ts",
               preload: {
-                js: "./src/renderer/editor/preload.js",
+                js: "./src/renderer/editor/preload.ts",
               },
             },
             {
               name: "docs_window",
               html: "./src/renderer/docs/index.html",
-              js: "./src/renderer/docs/renderer.js",
+              js: "./src/renderer/docs/renderer.ts",
               preload: {
-                js: "./src/renderer/docs/preload.js",
+                js: "./src/renderer/docs/preload.ts",
               },
             },
           ],

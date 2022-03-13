@@ -1,16 +1,28 @@
-const { app, BrowserWindow, nativeTheme, Menu } = require("electron");
+import {
+  app,
+  BrowserWindow,
+  nativeTheme,
+  Menu,
+  MenuItem,
+  MenuItemConstructorOptions,
+} from "electron";
 
-const EditorWindow = require("./editor-window");
-const DocsWindow = require("./docs-window"); // TODO Verify where this should go
+import EditorWindow from "./editor-window";
+import DocsWindow from "./docs-window"; // TODO Verify where this should go
 
 class WindowManager {
+  editorWindows: Map<number, EditorWindow>; // TODO Find a way to use a set instead and not store ID
+  docsWindow: DocsWindow;
+  darkMode: boolean;
+  interpreter: string;
+
   constructor() {
-    this.editorWindows = new Object();
+    this.editorWindows = new Map();
     this.docsWindow = null;
 
     this.darkMode = nativeTheme.shouldUseDarkColors;
 
-    const platform = process.platform;
+    const platform: string = process.platform;
     this.interpreter = platform === "windows" ? "python.exe" : "python3";
   }
 
@@ -26,15 +38,17 @@ class WindowManager {
     // 1. Wipe the BrowserWindow instance
     // 2. Reload Application Menu
     browserWindow.once("closed", () => {
-      this.editorWindows[id] = null;
+      this.editorWindows.delete(id);
 
       this.createApplicationMenu();
     });
 
-    this.editorWindows[id] = newWindow;
+    this.editorWindows.set(id, newWindow);
+
+    return newWindow;
   }
 
-  openDocsWindow(section) {
+  openDocsWindow(section?: string) {
     if (!this.docsWindow) {
       this.docsWindow = this.createDocsWindow(section);
     } else {
@@ -43,7 +57,7 @@ class WindowManager {
     }
   }
 
-  createDocsWindow(section) {
+  createDocsWindow(section: string) {
     const docsWindow = new DocsWindow(section);
     const browserWindow = docsWindow.getBrowserWindow(); // TODO Change to calling "setListener" function?
 
@@ -66,7 +80,29 @@ class WindowManager {
     const isFocussedWindow = !!focussedWindow;
     const isEditorWindowInFocus = !!this.getWindowFromId(focussedWindow?.id);
 
-    const template = [
+    const isMac = process.platform === "darwin";
+
+    const template: Electron.MenuItemConstructorOptions[] = [
+      // App Menu
+      ...((isMac
+        ? [
+            {
+              label: app.name,
+              submenu: [
+                { role: "about" },
+                { type: "separator" },
+                { role: "services" },
+                { type: "separator" },
+                { role: "hide" },
+                { role: "hideOthers" },
+                { role: "unhide" },
+                { type: "separator" },
+                { role: "quit" },
+              ],
+            },
+          ]
+        : []) as MenuItemConstructorOptions[]),
+      // File Menu
       {
         label: "File",
         submenu: [
@@ -80,14 +116,14 @@ class WindowManager {
           {
             label: "Open File",
             accelerator: "CmdOrCtrl+O",
-            click: async (_item, targetWindow) => {
+            click: async (_item: MenuItem, targetWindow: BrowserWindow) => {
               const window = this.getWindowFromId(targetWindow?.id);
               const isFileOpen = isEditorWindowInFocus
                 ? await window?.isFileOpen()
                 : true;
 
               if (!isFileOpen) {
-                const isEdited = await window?.isEdited();
+                const isEdited = await window.isEdited();
                 window.getFile(isEdited);
               } else {
                 const newWindow = this.createEditorWindow();
@@ -102,7 +138,7 @@ class WindowManager {
             label: "Save File",
             accelerator: "CmdOrCtrl+S",
             enabled: isEditorWindowInFocus,
-            click: (_item, targetWindow) => {
+            click: (_item: MenuItem, targetWindow: BrowserWindow) => {
               targetWindow.webContents.send("file:save");
             },
           },
@@ -110,7 +146,7 @@ class WindowManager {
             label: "Run File",
             accelerator: "CmdOrCtrl+R",
             enabled: isEditorWindowInFocus,
-            click: async (_item, targetWindow) => {
+            click: async (_item: MenuItem, targetWindow: BrowserWindow) => {
               targetWindow.webContents.send("file:run");
             },
           },
@@ -118,63 +154,31 @@ class WindowManager {
           {
             label: "Show File",
             enabled: isEditorWindowInFocus,
-            click: (_item, targetWindow) => {
+            click: (_item: MenuItem, targetWindow: BrowserWindow) => {
               targetWindow.webContents.send("file:show");
             },
           },
         ],
       },
+      // Edit Menu
       {
         label: "Edit",
         submenu: [
-          {
-            label: "Undo",
-            accelerator: "CmdOrCtrl+Z",
-            role: "undo",
-          },
-          {
-            label: "Redo",
-            accelerator: "Shift+CmdOrCtrl+Z",
-            role: "redo",
-          },
+          { role: "undo" },
+          { role: "redo" },
           { type: "separator" },
-          {
-            label: "Cut",
-            accelerator: "CmdOrCtrl+X",
-            role: "cut",
-          },
-          {
-            label: "Copy",
-            accelerator: "CmdOrCtrl+C",
-            role: "copy",
-          },
-          {
-            label: "Paste",
-            accelerator: "CmdOrCtrl+V",
-            role: "paste",
-          },
-          {
-            label: "Select All",
-            accelerator: "CmdOrCtrl+A",
-            role: "selectall",
-          },
+          { role: "cut" },
+          { role: "copy" },
+          { role: "paste" },
+          { role: "selectAll" },
         ],
       },
+      // Window Menu
       {
         label: "Window",
-        submenu: [
-          {
-            label: "Minimize",
-            accelerator: "CmdOrCtrl+M",
-            role: "minimize",
-          },
-          {
-            label: "Close",
-            accelerator: "CmdOrCtrl+W",
-            role: "close",
-          },
-        ],
+        submenu: [{ role: "minimize" }, { role: "close" }],
       },
+      // Help Menu
       {
         label: "Help",
         role: "help",
@@ -190,7 +194,7 @@ class WindowManager {
             label: "Toggle Developer Tools",
             accelerator: "CmdOrCtrl+Alt+I",
             enabled: isFocussedWindow,
-            click: (_item, targetWindow) => {
+            click: (_item: MenuItem, targetWindow: BrowserWindow) => {
               targetWindow.webContents.toggleDevTools();
             },
           },
@@ -198,63 +202,11 @@ class WindowManager {
       },
     ];
 
-    if (process.platform === "darwin") {
-      const name = "Codey";
-      template.unshift({
-        label: name,
-        submenu: [
-          {
-            label: `About ${name}`,
-            role: "about",
-          },
-          { type: "separator" },
-          {
-            label: "Services",
-            role: "services",
-            submenu: [],
-          },
-          { type: "separator" },
-          {
-            label: `Hide ${name}`,
-            accelerator: "Cmd+H",
-            role: "hide",
-          },
-          {
-            label: "Hide Others",
-            accelerator: "Cmd+Alt+H",
-            role: "hideothers",
-          },
-          {
-            label: "Show All",
-            role: "unhide",
-          },
-          { type: "separator" },
-          {
-            label: `Quit ${name}`,
-            accelerator: "Cmd+Q",
-            click: () => {
-              app.quit();
-            },
-          },
-        ],
-      });
-
-      const windowMenu = template.find((item) => item.label === "Window");
-      windowMenu.role = "window";
-      windowMenu.submenu.push(
-        { type: "separator" },
-        {
-          label: "Bring All to Front",
-          role: "front",
-        }
-      );
-    }
-
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   }
 
-  getWindowFromId(targetWindowId) {
-    return this.editorWindows[targetWindowId];
+  getWindowFromId(targetWindowId: number) {
+    return this.editorWindows.get(targetWindowId);
   }
 
   toggleDarkMode() {
@@ -272,4 +224,4 @@ class WindowManager {
   }
 }
 
-module.exports = WindowManager;
+export default WindowManager;

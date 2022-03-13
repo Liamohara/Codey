@@ -1,27 +1,41 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"type": "npm",
-			"script": "start",
-			"problemMatcher": [],
-			"label": "npm: start",
-			"detail": "electron-forge start",
-			"group": {
-				"kind": "test",
-				"isDefault": true
-			}
-		},
-		{
-			"type": "npm",
-			"script": "package",
-			"problemMatcher": [],
-			"label": "npm: package",
-			"detail": "electron-forge package",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			}
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "start",
+      "problemMatcher": [],
+      "label": "npm: start",
+      "detail": "electron-forge start",
+      "group": "test"
+    },
+    {
+      "type": "npm",
+      "script": "prettier-watch",
+      "group": "test",
+      "problemMatcher": [],
+      "label": "npm: prettier-watch",
+      "detail": "onchange 'src/**/*.ts' -- prettier --write {{changed}}"
+    },
+    {
+      "label": "npm: start & prettier-watch",
+      "dependsOn": ["npm: prettier-watch", "npm: start"],
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "type": "npm",
+      "script": "package",
+      "problemMatcher": [],
+      "label": "npm: package",
+      "detail": "electron-forge package",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
 }

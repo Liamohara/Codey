@@ -1,11 +1,16 @@
-const { BrowserWindow } = require("electron");
+import { BrowserWindow, nativeTheme } from "electron";
 
 const platform = process.platform;
 const isDarwin = platform === "darwin";
 
 class Window {
-  constructor(renderer, preload) {
+  window: Electron.CrossProcessExports.BrowserWindow;
+  darkMode: boolean;
+
+  constructor(renderer: string, preload: string) {
     const [x, y] = this.getNewWindowPosition();
+
+    this.darkMode = nativeTheme.shouldUseDarkColors; // TODO Improve usage. Also fix error where native Theme changes whilst window open.
 
     this.window = new BrowserWindow({
       x,
@@ -14,7 +19,7 @@ class Window {
       height: 600,
       minWidth: 405,
       minHeight: 405,
-      titleBarStyle: !isDarwin ? true : "hidden",
+      titleBarStyle: isDarwin ? "hidden" : "default",
       webPreferences: {
         preload,
       },
@@ -60,9 +65,10 @@ class Window {
     return this.window.id;
   }
 
-  send(...args) {
-    return this.window.webContents.send(...args);
+  send(channel: string, ...args: unknown[]) {
+    // TODO Improve functionality. Should not have type "any" or be passed like this!
+    return this.window.webContents.send(channel, ...args);
   }
 }
 
-module.exports = Window;
+export default Window;

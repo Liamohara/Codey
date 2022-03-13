@@ -2,19 +2,21 @@
 // It defines the API to communicate between the main process and the renderer processes.
 // It also allows the renderer process access to modules not available locally.
 
-const { contextBridge, ipcRenderer } = require("electron");
+import { contextBridge, ipcRenderer } from "electron";
 
-const api = require("../preload");
+import api from "../preload";
 
 contextBridge.exposeInMainWorld("api", {
   ...api,
   file: {
-    isOpen: (func) => {
+    isOpen: (func: (event: Electron.IpcRendererEvent) => void) => {
       ipcRenderer.on("file:is-open", func);
     },
   },
   docs: {
-    jump: (func) => {
+    jump: (
+      func: (event: Electron.IpcRendererEvent, section: string) => void
+    ) => {
       ipcRenderer.on("docs:jump", func);
     },
   },
