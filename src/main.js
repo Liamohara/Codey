@@ -66,12 +66,6 @@ function createEditorWindow() {
 
   // Show window once it has finished initialising
   newWindow.once("ready-to-show", () => {
-    initShell(editorWindows, newWindow);
-
-    newWindow.show();
-  });
-
-  newWindow.once("show", () => {
     if (darkMode) {
       newWindow.webContents.send("dark-mode:toggle");
     }
@@ -79,6 +73,10 @@ function createEditorWindow() {
     if (!isDarwin) {
       newWindow.webContents.send("platform:not-darwin");
     }
+
+    initShell(editorWindows, newWindow);
+
+    newWindow.show();
   });
 
   newWindow.on("focus", () => createApplicationMenu(true));
@@ -169,12 +167,6 @@ function createDocsWindow(section) {
 
   // Show window once it has finished initialising
   docsWindow.once("ready-to-show", () => {
-    createApplicationMenu();
-
-    docsWindow.show();
-  });
-
-  docsWindow.once("show", () => {
     if (darkMode) {
       docsWindow.webContents.send("dark-mode:toggle");
     }
@@ -184,9 +176,11 @@ function createDocsWindow(section) {
     }
 
     docsWindow.webContents.send("docs:jump", section);
+
+    docsWindow.show();
   });
 
-  docsWindow.on("browser-window-focus", createApplicationMenu);
+  docsWindow.on("focus", createApplicationMenu);
 
   // When a window is closed.
   // 1. Remove it from the window set.
