@@ -167,6 +167,6 @@ window.api.file.show((event) => {
   event.sender.send("file:show", filePath);
 });
 
-window.api.darkMode.toggle.recieve(toggleDarkMode);
+window.api.darkMode.toggle.receive(toggleDarkMode);
 
 window.api.platform.notDarwin(() => (body.id = "not-darwin"));

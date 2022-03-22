@@ -37,7 +37,7 @@ window.api.docs.jump((_event, content) => {
   window.location.hash = content;
 });
 
-window.api.darkMode.toggle.recieve(toggleDarkMode);
+window.api.darkMode.toggle.receive(toggleDarkMode);
 
 window.api.file.isOpen((event) => event.sender.send("file:is-open", true));
 

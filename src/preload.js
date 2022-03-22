@@ -64,7 +64,7 @@ contextBridge.exposeInMainWorld("api", {
 
   darkMode: {
     toggle: {
-      recieve: (func) => {
+      receive: (func) => {
         ipcRenderer.on("dark-mode:toggle", func);
       },
       send: () => {
