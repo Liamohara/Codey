@@ -3,7 +3,7 @@ import { ipcRenderer } from "electron";
 const API = {
   darkMode: {
     toggle: {
-      recieve: (func: () => void) => {
+      receive: (func: () => void) => {
         ipcRenderer.on("dark-mode:toggle", func);
       },
       send: () => {

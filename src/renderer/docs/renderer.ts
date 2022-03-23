@@ -37,6 +37,6 @@ window.api.docs.jump((_event: Electron.IpcRendererEvent, section: string) => {
   window.location.hash = section;
 });
 
-window.api.darkMode.toggle.recieve(toggleDarkMode);
+window.api.darkMode.toggle.receive(toggleDarkMode);
 
 window.api.platform.notDarwin(() => (body.id = "not-darwin"));
