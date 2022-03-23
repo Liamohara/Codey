@@ -39,8 +39,4 @@ window.api.docs.jump((_event: Electron.IpcRendererEvent, section: string) => {
 
 window.api.darkMode.toggle.recieve(toggleDarkMode);
 
-window.api.file.isOpen((event: Electron.IpcRendererEvent) =>
-  event.sender.send("file:is-open", true)
-); // TODO Needed?
-
 window.api.platform.notDarwin(() => (body.id = "not-darwin"));

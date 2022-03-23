@@ -24,7 +24,7 @@ abstract class Window {
         preload,
       },
       show: false,
-    }); // TODO Pass settings in
+    });
 
     // Load index.html to window
     this.window.loadURL(renderer);

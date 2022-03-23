@@ -32,12 +32,12 @@ class WindowManager {
   }
 
   showDocsWindow(section?: string) {
-    DocsWindow.show(section);
+    DocsWindow.show(darkMode, section);
   }
 
   async createApplicationMenu() {
     const focussedWindow = BrowserWindow.getFocusedWindow();
-    const isFocussedWindow = !!focussedWindow; // "!!" Converts to boolean
+    const isFocussedWindow = !!focussedWindow; // "!!" - Converts to boolean - true if there is a focussed window, false if there isn't
     const isEditorWindowInFocus = !!EditorWindow.fromID(focussedWindow?.id);
 
     const template: Electron.MenuItemConstructorOptions[] = [
@@ -113,6 +113,7 @@ class WindowManager {
             label: "Show File",
             enabled: isEditorWindowInFocus,
             click: (_item: MenuItem, targetWindow: BrowserWindow) => {
+              if (!targetWindow) return;
               targetWindow.webContents.send("file:show");
             },
           },

@@ -8,11 +8,6 @@ import api from "../preload";
 
 contextBridge.exposeInMainWorld("api", {
   ...api,
-  file: {
-    isOpen: (func: (event: Electron.IpcRendererEvent) => void) => {
-      ipcRenderer.on("file:is-open", func);
-    },
-  },
   docs: {
     jump: (
       func: (event: Electron.IpcRendererEvent, section: string) => void

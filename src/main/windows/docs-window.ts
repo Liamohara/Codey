@@ -13,7 +13,7 @@ class DocsWindow extends Window {
       DOCS_WINDOW_WEBPACK_ENTRY,
       DOCS_WINDOW_PRELOAD_WEBPACK_ENTRY,
       darkMode
-    ); // TODO use builder design pattern? OR Pass in settings object
+    );
 
     this.window.webContents.once("did-finish-load", () => {
       this.send("docs:jump", section);
@@ -22,13 +22,13 @@ class DocsWindow extends Window {
     this.window.once("closed", (): void => (DocsWindow.instance = null));
   }
 
-  static show(section?: string) {
+  static show(darkMode: boolean, section?: string) {
     if (this.instance) {
       if (section) this.jump(section);
 
       this.focus();
     } else {
-      this.instance = new DocsWindow(false, section); // TODO Pass in darkMode
+      this.instance = new DocsWindow(darkMode, section);
     }
   }
 
