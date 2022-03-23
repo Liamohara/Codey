@@ -16,7 +16,6 @@ const navbar = document.querySelector(".navbar");
 // * Functions *
 
 function toggleDarkMode() {
-  console.log("Yahooooo!");
   navbar.classList.toggle("is-light");
   navbar.classList.toggle("is-dark");
   darkModeToggle.classList.toggle("is-light");
