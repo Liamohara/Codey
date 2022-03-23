@@ -4,7 +4,7 @@
 
 import { contextBridge, ipcRenderer } from "electron";
 
-import api from "../preload"; // TODO FIXXXXX!!!!
+import api from "../preload";
 
 contextBridge.exposeInMainWorld("api", {
   ...api,

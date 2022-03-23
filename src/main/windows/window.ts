@@ -1,16 +1,16 @@
-import { BrowserWindow, nativeTheme } from "electron";
+import { BrowserWindow } from "electron";
+import EventEmitter from "events";
 
 const platform = process.platform;
 const isDarwin = platform === "darwin";
 
-class Window {
-  window: Electron.CrossProcessExports.BrowserWindow;
-  darkMode: boolean;
+abstract class Window {
+  protected window: BrowserWindow;
 
-  constructor(renderer: string, preload: string) {
+  event = new EventEmitter();
+
+  constructor(renderer: string, preload: string, darkMode: boolean) {
     const [x, y] = this.getNewWindowPosition();
-
-    this.darkMode = nativeTheme.shouldUseDarkColors; // TODO Improve usage. Also fix error where native Theme changes whilst window open.
 
     this.window = new BrowserWindow({
       x,
@@ -24,14 +24,14 @@ class Window {
         preload,
       },
       show: false,
-    });
+    }); // TODO Pass settings in
 
     // Load index.html to window
     this.window.loadURL(renderer);
 
     // Show window once it has finished initialising
-    this.window.once("ready-to-show", () => {
-      if (this.darkMode) {
+    this.window.webContents.once("did-finish-load", () => {
+      if (darkMode) {
         this.send("dark-mode:toggle");
       }
 
@@ -41,9 +41,12 @@ class Window {
 
       this.window.show();
     });
+
+    this.window.on("focus", () => this.event.emit("new-focus"));
+    this.window.on("closed", () => this.event.emit("new-focus"));
   }
 
-  getNewWindowPosition() {
+  private getNewWindowPosition() {
     const currentWindow = BrowserWindow.getFocusedWindow();
 
     // Calculate window start position
@@ -57,16 +60,11 @@ class Window {
     return [x, y];
   }
 
-  getBrowserWindow() {
+  get BrowserWindow() {
     return this.window;
   }
 
-  getId() {
-    return this.window.id;
-  }
-
-  send(channel: string, ...args: unknown[]) {
-    // TODO Improve functionality. Should not have type "any" or be passed like this!
+  protected send(channel: string, ...args: unknown[]) {
     return this.window.webContents.send(channel, ...args);
   }
 }

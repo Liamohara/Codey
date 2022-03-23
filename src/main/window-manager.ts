@@ -1,3 +1,5 @@
+// * Imports *
+
 import {
   app,
   BrowserWindow,
@@ -7,43 +9,26 @@ import {
   MenuItemConstructorOptions,
 } from "electron";
 
-import EditorWindow from "./editor-window";
-import DocsWindow from "./docs-window"; // TODO Verify where this should go
+import EditorWindow from "./windows/editor-window";
+import DocsWindow from "./windows/docs-window";
+
+// * Variable Assignment *
+
+const platform: string = process.platform;
+const isMac = platform === "darwin";
+const interpreter = platform === "windows" ? "python.exe" : "python3";
+
+let darkMode = nativeTheme.shouldUseDarkColors;
+
+// * Class Definition *
 
 class WindowManager {
-  editorWindows: Map<number, EditorWindow>; // TODO Find a way to use a set instead and not store ID
-  docsWindow: DocsWindow;
-  darkMode: boolean;
-  interpreter: string;
-
-  constructor() {
-    this.editorWindows = new Map();
-    this.docsWindow = null;
-
-    this.darkMode = nativeTheme.shouldUseDarkColors;
-
-    const platform: string = process.platform;
-    this.interpreter = platform === "windows" ? "python.exe" : "python3";
-  }
+  private docsWindow: DocsWindow;
 
   createEditorWindow() {
-    const newWindow = new EditorWindow(this.interpreter);
-    const id = newWindow.getId();
+    const newWindow = new EditorWindow(darkMode, interpreter);
 
-    const browserWindow = newWindow.getBrowserWindow();
-
-    browserWindow.on("focus", () => this.createApplicationMenu());
-
-    // When a window is closed.
-    // 1. Wipe the BrowserWindow instance
-    // 2. Reload Application Menu
-    browserWindow.once("closed", () => {
-      this.editorWindows.delete(id);
-
-      this.createApplicationMenu();
-    });
-
-    this.editorWindows.set(id, newWindow);
+    newWindow.event.on("new-focus", () => this.createApplicationMenu());
 
     return newWindow;
   }
@@ -52,35 +37,24 @@ class WindowManager {
     if (!this.docsWindow) {
       this.docsWindow = this.createDocsWindow(section);
     } else {
-      this.docsWindow.focus();
-      this.docsWindow.send("docs:jump", section);
+      this.docsWindow.focus(section);
     }
   }
 
-  createDocsWindow(section: string) {
-    const docsWindow = new DocsWindow(section);
-    const browserWindow = docsWindow.getBrowserWindow(); // TODO Change to calling "setListener" function?
+  private createDocsWindow(section: string) {
+    const docsWindow = new DocsWindow(darkMode, section);
+    const browserWindow = docsWindow.BrowserWindow; // TODO Remove using
+    docsWindow.event.on("new-focus", () => this.createApplicationMenu());
 
-    browserWindow.on("focus", () => this.createApplicationMenu());
-
-    // When a window is closed.
-    // 1. Wipe the BrowserWindow instance
-    // 2. Reload Application Menu
-    browserWindow.once("closed", () => {
-      this.docsWindow = null;
-
-      this.createApplicationMenu();
-    });
+    browserWindow.once("closed", (): void => (this.docsWindow = null));
 
     return docsWindow;
   }
 
   async createApplicationMenu() {
     const focussedWindow = BrowserWindow.getFocusedWindow();
-    const isFocussedWindow = !!focussedWindow;
-    const isEditorWindowInFocus = !!this.getWindowFromId(focussedWindow?.id);
-
-    const isMac = process.platform === "darwin";
+    const isFocussedWindow = !!focussedWindow; // "!!" Converts to boolean
+    const isEditorWindowInFocus = !!EditorWindow.fromID(focussedWindow?.id);
 
     const template: Electron.MenuItemConstructorOptions[] = [
       // App Menu
@@ -117,7 +91,7 @@ class WindowManager {
             label: "Open File",
             accelerator: "CmdOrCtrl+O",
             click: async (_item: MenuItem, targetWindow: BrowserWindow) => {
-              const window = this.getWindowFromId(targetWindow?.id);
+              const window = EditorWindow.fromID(targetWindow?.id);
               const isFileOpen = isEditorWindowInFocus
                 ? await window?.isFileOpen()
                 : true;
@@ -127,7 +101,7 @@ class WindowManager {
                 window.getFile(isEdited);
               } else {
                 const newWindow = this.createEditorWindow();
-                const browserWindow = newWindow.getBrowserWindow();
+                const browserWindow = newWindow.BrowserWindow;
                 browserWindow.once("show", () => {
                   newWindow.getFile(false);
                 });
@@ -205,14 +179,10 @@ class WindowManager {
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   }
 
-  getWindowFromId(targetWindowId: number) {
-    return this.editorWindows.get(targetWindowId);
-  }
-
   toggleDarkMode() {
-    this.darkMode = !this.darkMode;
+    darkMode = !darkMode;
 
-    if (this.darkMode) {
+    if (darkMode) {
       nativeTheme.themeSource = "dark";
     } else {
       nativeTheme.themeSource = "light";

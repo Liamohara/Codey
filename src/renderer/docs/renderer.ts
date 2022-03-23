@@ -1,16 +1,10 @@
-/**
- * This file will automatically be loaded by webpack and run in the "renderer" context.
+/*
+This file will automatically be loaded by webpack and run in the "renderer" context.
  */
 
 // * Imports *
 
 import "../../style.scss";
-
-declare global {
-  interface Window {
-    api?: any;
-  }
-}
 
 // * Variable assignment *
 
@@ -22,6 +16,7 @@ const navbar = document.querySelector(".navbar");
 // * Functions *
 
 function toggleDarkMode() {
+  console.log("Yahooooo!");
   navbar.classList.toggle("is-light");
   navbar.classList.toggle("is-dark");
   darkModeToggle.classList.toggle("is-light");
