@@ -38,7 +38,7 @@ function createHandlers(windowManager: WindowManager) {
   });
 
   ipcMain.handle("docs:open", (_event, section) =>
-    windowManager.openDocsWindow(section)
+    windowManager.showDocsWindow(section)
   );
 
   ipcMain.handle("dark-mode:toggle", () => {

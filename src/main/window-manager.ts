@@ -23,8 +23,6 @@ let darkMode = nativeTheme.shouldUseDarkColors;
 // * Class Definition *
 
 class WindowManager {
-  private docsWindow: DocsWindow;
-
   createEditorWindow() {
     const newWindow = new EditorWindow(darkMode, interpreter);
 
@@ -33,22 +31,8 @@ class WindowManager {
     return newWindow;
   }
 
-  openDocsWindow(section?: string) {
-    if (!this.docsWindow) {
-      this.docsWindow = this.createDocsWindow(section);
-    } else {
-      this.docsWindow.focus(section);
-    }
-  }
-
-  private createDocsWindow(section: string) {
-    const docsWindow = new DocsWindow(darkMode, section);
-    const browserWindow = docsWindow.BrowserWindow; // TODO Remove using
-    docsWindow.event.on("new-focus", () => this.createApplicationMenu());
-
-    browserWindow.once("closed", (): void => (this.docsWindow = null));
-
-    return docsWindow;
+  showDocsWindow(section?: string) {
+    DocsWindow.show(section);
   }
 
   async createApplicationMenu() {
@@ -161,7 +145,7 @@ class WindowManager {
             label: "Open Documentation",
             accelerator: "F12",
             click: () => {
-              this.openDocsWindow();
+              this.showDocsWindow();
             },
           },
           {

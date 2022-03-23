@@ -47,4 +47,3 @@ app.on("window-all-closed", () => {
 });
 
 // TODO Open Recent Files Menu
-// TODO Make the docs window class a singleton

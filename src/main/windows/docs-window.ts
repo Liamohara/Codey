@@ -4,23 +4,40 @@ import Window from "./window";
 declare const DOCS_WINDOW_WEBPACK_ENTRY: string;
 declare const DOCS_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
+// Singleton class Docs Window Definition
 class DocsWindow extends Window {
-  constructor(darkMode: boolean, section: string) {
+  private static instance: DocsWindow;
+
+  private constructor(darkMode: boolean, section: string) {
     super(
       DOCS_WINDOW_WEBPACK_ENTRY,
       DOCS_WINDOW_PRELOAD_WEBPACK_ENTRY,
       darkMode
-    ); // TODO use builder design pattern?
+    ); // TODO use builder design pattern? OR Pass in settings object
 
     this.window.webContents.once("did-finish-load", () => {
       this.send("docs:jump", section);
     });
+
+    this.window.once("closed", (): void => (DocsWindow.instance = null));
   }
 
-  focus(section?: string) {
-    if (section) this.send("docs:jump", section);
+  static show(section?: string) {
+    if (this.instance) {
+      if (section) this.jump(section);
 
-    this.window.focus();
+      this.focus();
+    } else {
+      this.instance = new DocsWindow(false, section); // TODO Pass in darkMode
+    }
+  }
+
+  private static jump(section: string) {
+    this.instance.send("docs:jump", section);
+  }
+
+  private static focus() {
+    this.instance.window.focus();
   }
 }
 
