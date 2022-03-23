@@ -16,7 +16,7 @@ import DocsWindow from "./windows/docs-window";
 
 const platform: string = process.platform;
 const isMac = platform === "darwin";
-const interpreter = platform === "windows" ? "python.exe" : "python3";
+const interpreter = platform === "win32" ? "python.exe" : "python3";
 
 let darkMode = nativeTheme.shouldUseDarkColors;
 
