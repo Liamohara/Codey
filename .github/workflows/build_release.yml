@@ -18,9 +18,9 @@ jobs:
           node-version: 16.4.0
           cache: 'yarn'
       - name: Install Node Modules
-        run: yarn install --immutable --immutable-cache --check-cache
+        run: yarn --immutable --immutable-cache --check-cache
       - name: Make
-        run: yarn run make
+        run: yarn make
       - name: Rename File
         run: mv out/make/Codey*.dmg "out/make/Codey (macOS).dmg"
       - name: Upload Artifact
@@ -39,9 +39,9 @@ jobs:
           node-version: 16.4.0
           cache: 'yarn'
       - name: Install Node Modules
-        run: yarn install --immutable --immutable-cache --check-cache
+        run: yarn --immutable --immutable-cache --check-cache
       - name: Make
-        run: yarn run make
+        run: yarn make
       - name: Rename Files
         run: |
           mv out/make/deb/x64/codey*.deb "out/make/deb/x64/Codey (Debian).deb"
@@ -67,9 +67,9 @@ jobs:
           node-version: 16.4.0
           cache: 'yarn'
       - name: Install Node Modules
-        run: yarn install --immutable --immutable-cache --check-cache
+        run: yarn --immutable --immutable-cache --check-cache
       - name: Make
-        run: yarn run make
+        run: yarn make
       - name: Rename File
         run: move out/make/squirrel.windows/x64/Codey*.exe "out/make/squirrel.windows/x64/Codey (Windows).exe"
       - name: Upload Artifact
