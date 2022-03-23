@@ -1,14 +1,14 @@
 module.exports = {
   packagerConfig: {
     executableName: "Codey",
-    icon: "assets/icon",
+    icon: "./assets/icon",
   },
   makers: [
     {
       name: "@electron-forge/maker-squirrel",
       config: {
         name: "electron_forge_webpack_app",
-        setupIcon: "assets/icon.ico",
+        setupIcon: "./assets/icon.ico",
         iconUrl:
           "https://raw.githubusercontent.com/Liamohara/Codey/master/assets/icon.ico",
       },
@@ -16,9 +16,9 @@ module.exports = {
     {
       name: "@electron-forge/maker-dmg",
       config: {
-        background: "assets/dmg-background.png",
+        background: "./assets/dmg-background.png",
         format: "ULFO",
-        icon: "assets/icon.icns",
+        icon: "./assets/icon.icns",
       },
     },
     {
@@ -26,7 +26,7 @@ module.exports = {
       config: {
         name: "Codey",
         bin: "Codey",
-        icon: "assets/icon.png",
+        icon: "./assets/icon.png",
       },
     },
     {
@@ -34,7 +34,7 @@ module.exports = {
       config: {
         name: "Codey",
         bin: "Codey",
-        icon: "assets/icon.png",
+        icon: "./assets/icon.png",
       },
     },
   ],
@@ -47,14 +47,20 @@ module.exports = {
           config: "./webpack_config/webpack.renderer.config.js",
           entryPoints: [
             {
-              html: "./src/editor/index.html",
-              js: "./src/editor/renderer.js",
               name: "editor_window",
+              html: "./src/renderer/editor/index.html",
+              js: "./src/renderer/editor/renderer.ts",
+              preload: {
+                js: "./src/renderer/editor/preload.ts",
+              },
             },
             {
-              html: "./src/docs/index.html",
-              js: "./src/docs/renderer.js",
               name: "docs_window",
+              html: "./src/renderer/docs/index.html",
+              js: "./src/renderer/docs/renderer.ts",
+              preload: {
+                js: "./src/renderer/docs/preload.ts",
+              },
             },
           ],
         },

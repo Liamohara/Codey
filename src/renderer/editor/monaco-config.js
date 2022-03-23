@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   language: "python",
   fontFamily: "Fira Code",
   fontLigatures: true,

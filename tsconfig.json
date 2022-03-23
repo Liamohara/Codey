@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "allowJs": true,
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "lib": ["ESNext", "DOM"],
+    "paths": {
+      "*": ["node_modules/*"],
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*"]
+}
