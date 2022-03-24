@@ -7,7 +7,7 @@ const isDarwin = platform === "darwin";
 abstract class Window {
   protected window: BrowserWindow;
 
-  event = new EventEmitter();
+  protected eventEmitter = new EventEmitter();
 
   constructor(renderer: string, preload: string, darkMode: boolean) {
     const [x, y] = this.getNewWindowPosition();
@@ -42,8 +42,8 @@ abstract class Window {
       this.window.show();
     });
 
-    this.window.on("focus", () => this.event.emit("new-focus"));
-    this.window.on("closed", () => this.event.emit("new-focus"));
+    this.window.on("focus", () => this.eventEmitter.emit("new-focus"));
+    this.window.on("closed", () => this.eventEmitter.emit("new-focus"));
   }
 
   private getNewWindowPosition() {
@@ -60,8 +60,8 @@ abstract class Window {
     return [x, y];
   }
 
-  get BrowserWindow() {
-    return this.window;
+  get event() {
+    return this.eventEmitter;
   }
 
   protected send(channel: string, ...args: unknown[]) {

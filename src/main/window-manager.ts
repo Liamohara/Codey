@@ -106,9 +106,8 @@ class WindowManager {
                 window.getFile(isEdited);
               } else {
                 const newWindow = this.createEditorWindow();
-                const browserWindow = newWindow.BrowserWindow; // TODO Change impl
-                browserWindow.once("show", () => {
-                  newWindow.getFile(false);
+                newWindow.event.once("show", () => {
+                  newWindow.getFile();
                 });
               }
             },

@@ -35,6 +35,8 @@ class EditorWindow extends Window {
       this.initPty(interpreter)
     );
 
+    this.window.once("show", () => this.eventEmitter.emit("show"));
+
     this.window.on("close", async (event) => {
       event.preventDefault();
 
@@ -95,7 +97,7 @@ class EditorWindow extends Window {
     this.ptyProcess.write(data);
   }
 
-  async getFile(isEdited: boolean) {
+  async getFile(isEdited?: boolean) {
     const fileSelection = await this.showFileDialog();
 
     if (!fileSelection.canceled) {

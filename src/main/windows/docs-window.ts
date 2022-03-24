@@ -4,7 +4,6 @@ import Window from "./window";
 declare const DOCS_WINDOW_WEBPACK_ENTRY: string;
 declare const DOCS_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
-// Singleton class Docs Window Definition
 class DocsWindow extends Window {
   private static instance: DocsWindow;
 
