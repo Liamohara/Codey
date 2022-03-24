@@ -22,23 +22,34 @@ class DocsWindow extends Window {
     this.window.once("closed", (): void => (DocsWindow.instance = null));
   }
 
-  static show(darkMode: boolean, section?: string) {
-    if (this.instance) {
-      if (section) this.jump(section);
+  show(section?: string) {
+    this.focus();
 
-      this.focus();
-    } else {
+    if (section) this.jump(section);
+  }
+
+  static getInstance(
+    darkMode?: boolean,
+    section?: string
+  ): [DocsWindow, boolean] {
+    const newInstance = !this.instance;
+
+    if (newInstance) {
       this.instance = new DocsWindow(darkMode, section);
     }
+
+    return [this.instance, newInstance];
   }
 
-  private static jump(section: string) {
-    this.instance.send("docs:jump", section);
+  private jump(section: string) {
+    DocsWindow.instance.send("docs:jump", section);
   }
 
-  private static focus() {
-    this.instance.window.focus();
+  private focus() {
+    DocsWindow.instance.window.focus();
   }
 }
 
 export default DocsWindow;
+
+// TODO Add on-focus event listener

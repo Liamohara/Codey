@@ -23,6 +23,18 @@ let darkMode = nativeTheme.shouldUseDarkColors;
 // * Class Definition *
 
 class WindowManager {
+  private static instance: WindowManager;
+
+  private constructor() {}
+
+  static getInstance() {
+    if (!this.instance) {
+      this.instance = new WindowManager();
+    }
+
+    return this.instance;
+  }
+
   createEditorWindow() {
     const newWindow = new EditorWindow(darkMode, interpreter);
 
@@ -32,7 +44,16 @@ class WindowManager {
   }
 
   showDocsWindow(section?: string) {
-    DocsWindow.show(darkMode, section);
+    const [docsWindow, isNewInstance] = DocsWindow.getInstance(
+      darkMode,
+      section
+    );
+
+    if (isNewInstance) {
+      docsWindow.event.addListener("new-focus", this.createApplicationMenu);
+    } else {
+      docsWindow.show(section);
+    }
   }
 
   async createApplicationMenu() {
@@ -85,7 +106,7 @@ class WindowManager {
                 window.getFile(isEdited);
               } else {
                 const newWindow = this.createEditorWindow();
-                const browserWindow = newWindow.BrowserWindow;
+                const browserWindow = newWindow.BrowserWindow; // TODO Change impl
                 browserWindow.once("show", () => {
                   newWindow.getFile(false);
                 });
@@ -112,8 +133,11 @@ class WindowManager {
           {
             label: "Show File",
             enabled: isEditorWindowInFocus,
-            click: (_item: MenuItem, targetWindow: BrowserWindow) => {
-              if (!targetWindow) return;
+            click: async (_item: MenuItem, targetWindow: BrowserWindow) => {
+              const window = EditorWindow.fromID(targetWindow?.id);
+              const isFileOpen = await window?.isFileOpen();
+
+              if (!isFileOpen) return;
               targetWindow.webContents.send("file:show");
             },
           },

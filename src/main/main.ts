@@ -19,7 +19,7 @@ if (require("electron-squirrel-startup")) {
 // Create the windows and application menu once Electron has finished intialisation.
 app.whenReady().then(() => {
   // Instante WindowManager class.
-  const windowManager = new WindowManager();
+  const windowManager = WindowManager.getInstance();
 
   // Define API listeners for main and renderer processes communication.
   createHandlers(windowManager);
@@ -47,3 +47,4 @@ app.on("window-all-closed", () => {
 });
 
 // TODO Open Recent Files Menu
+// TODO Custom titlebar Windows and Linux
