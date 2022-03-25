@@ -65,7 +65,7 @@ abstract class Window {
   }
 
   protected send(channel: string, ...args: unknown[]) {
-    return this.window.webContents.send(channel, ...args);
+    this.window.webContents.send(channel, ...args);
   }
 }
 
