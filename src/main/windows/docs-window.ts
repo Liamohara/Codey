@@ -28,7 +28,7 @@ class DocsWindow extends Window {
   }
 
   static getInstance(
-    darkMode?: boolean,
+    darkMode: boolean,
     section?: string
   ): [DocsWindow, boolean] {
     const newInstance = !this.instance;
