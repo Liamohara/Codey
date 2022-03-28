@@ -185,7 +185,7 @@ class EditorWindow extends Window {
 
     if (filePath) {
       this.runFileName = path.basename(filePath);
-      this.runFileCmd = `exec(open("${filePath}").read())\r`;
+      this.runFileCmd = `exec(open(r"${filePath}").read())\r`;
       this.writeToPty(this.runFileCmd);
     }
   }
