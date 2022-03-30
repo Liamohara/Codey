@@ -9,7 +9,11 @@ abstract class Window {
 
   protected eventEmitter = new EventEmitter();
 
-  constructor(renderer: string, preload: string, darkMode: boolean) {
+  constructor(
+    windowWebpackEntry: string,
+    preloadWebpackEntry: string,
+    darkMode: boolean
+  ) {
     const [x, y] = this.getNewWindowPosition();
 
     this.window = new BrowserWindow({
@@ -21,13 +25,13 @@ abstract class Window {
       minHeight: 405,
       titleBarStyle: isDarwin ? "hidden" : "default",
       webPreferences: {
-        preload,
+        preload: preloadWebpackEntry,
       },
       show: false,
     });
 
     // Load index.html to window
-    this.window.loadURL(renderer);
+    this.window.loadURL(windowWebpackEntry);
 
     // Show window once it has finished initialising
     this.window.webContents.once("did-finish-load", () => {
