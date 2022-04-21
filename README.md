@@ -47,15 +47,15 @@ yarn
 yarn start
 ```
 
-5. Package the application and generate binaries.
+5. Package the application and create the installer.
 
 ```sh
-yarn package
+yarn make
 ```
 
-6. The binaries have now been saved to `./out`!
+6. The installer has now been saved to `./out/make`!
 
 ```sh
-cd $HOME/codey/out
+cd $HOME/codey/out/make
 ls
 ```
