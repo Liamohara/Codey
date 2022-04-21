@@ -10,7 +10,7 @@ import createHandlers from "./api-handlers";
 
 const platform: string = process.platform;
 const isMac = platform === "darwin";
-const isWindows = platform === "windows";
+const isWindows = platform === "win32";
 
 // Finding the path of the local python version.
 // The "where" and "which" commands return paths for the given command.
