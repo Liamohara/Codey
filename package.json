@@ -33,6 +33,7 @@
     "@typescript-eslint/parser": "^5.14.0",
     "@vercel/webpack-asset-relocator-loader": "^1.7.0",
     "bulma": "^0.9.3",
+    "copy-webpack-plugin": "^10.2.4",
     "css-loader": "^6.5.1",
     "electron": "16.0.5",
     "eslint": "^8.11.0",

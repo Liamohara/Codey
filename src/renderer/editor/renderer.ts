@@ -158,7 +158,7 @@ window.api.shell.stdout((_event: Electron.IpcRendererEvent, data: string) => {
 });
 
 window.api.shell.clear(() => {
-  shell.clear();
+  shell.reset();
 });
 
 window.api.file.save((event: Electron.IpcRendererEvent) => {

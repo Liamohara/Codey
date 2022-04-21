@@ -12,10 +12,12 @@ declare const EDITOR_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 class EditorWindow extends Window {
   private static instances = new Map<number, EditorWindow>();
 
+  private interpreter: string;
   private ptyProcess: pty.IPty;
-  private runFileName: string;
-  private runFileCmd: string;
   private ptyBuffer: string;
+  private ptyCmd: string;
+  private fileDir: string;
+  private fileName: string;
 
   constructor(darkMode: boolean, interpreter: string) {
     super(
@@ -24,16 +26,14 @@ class EditorWindow extends Window {
       darkMode
     );
 
+    this.interpreter = interpreter;
+
     this.ptyProcess = null;
-    this.runFileName = null;
-    this.runFileCmd = null;
+    this.fileName = null;
+    this.ptyCmd = null;
     this.ptyBuffer = "";
 
-    const id = this.window.id;
-
-    this.window.webContents.once("did-finish-load", () =>
-      this.initPty(interpreter)
-    );
+    this.window.webContents.once("did-finish-load", () => this.initPty());
 
     this.window.once("show", () => this.eventEmitter.emit("show"));
 
@@ -56,6 +56,8 @@ class EditorWindow extends Window {
       }
     });
 
+    const id = this.window.id;
+
     this.window.once("closed", () => {
       EditorWindow.instances.delete(id);
       this.ptyProcess = null;
@@ -68,18 +70,19 @@ class EditorWindow extends Window {
     return EditorWindow.instances.get(id);
   }
 
-  private initPty(interpreter: string) {
+  private initPty() {
     // Initialise node-pty process
-    this.ptyProcess = pty.spawn(interpreter, [], {
+    this.ptyProcess = pty.spawn(this.interpreter, [], {
+      cwd: this.fileDir,
       handleFlowControl: true,
     });
 
     this.ptyProcess.onData((data) => {
-      if (this.runFileName) {
+      if (this.fileName) {
         this.ptyBuffer += data;
-        if (this.ptyBuffer === this.runFileCmd + "\n") {
-          this.send("shell:stdout", `% RUN ${this.runFileName} %\r\n`);
-          this.runFileName = null;
+        if (this.ptyBuffer === this.ptyCmd + "\n") {
+          this.send("shell:stdout", `% RUN ${this.fileName} %\r\n`);
+          this.fileName = null;
           this.ptyBuffer = "";
         }
       } else {
@@ -89,12 +92,16 @@ class EditorWindow extends Window {
 
     this.ptyProcess.onExit(() => {
       this.send("shell:clear");
-      this.initPty(interpreter);
+      this.initPty();
     });
   }
 
   writeToPty(data: string) {
     this.ptyProcess.write(data);
+  }
+
+  resetPty() {
+    this.ptyProcess.kill();
   }
 
   async getFile(isEdited?: boolean) {
@@ -161,6 +168,10 @@ class EditorWindow extends Window {
       path.dirname(filePath),
       content
     );
+
+    // Restarts PTY Process to change shell working directory.
+    this.fileDir = path.dirname(filePath);
+    this.resetPty();
   }
 
   async saveFile(filePath: string, content: string) {
@@ -184,9 +195,12 @@ class EditorWindow extends Window {
     filePath = await this.saveFile(filePath, content);
 
     if (filePath) {
-      this.runFileName = path.basename(filePath);
-      this.runFileCmd = `exec(open(r"${filePath}").read())\r`;
-      this.writeToPty(this.runFileCmd);
+      // Waiting for shell to reset.
+      setTimeout(() => {
+        this.fileName = path.basename(filePath);
+        this.ptyCmd = `exec(open(r"${filePath}").read())\r`;
+        this.writeToPty(this.ptyCmd);
+      }, 500);
     }
   }
 

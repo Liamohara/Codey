@@ -14,9 +14,7 @@ import DocsWindow from "./windows/docs-window";
 
 // * Variable Assignment *
 
-const platform: string = process.platform;
-const isMac = platform === "darwin";
-const interpreter = platform === "win32" ? "python.exe" : "python3";
+const isMac = process.platform === "darwin";
 
 let darkMode = nativeTheme.shouldUseDarkColors;
 
@@ -24,6 +22,7 @@ let darkMode = nativeTheme.shouldUseDarkColors;
 
 class WindowManager {
   private static instance: WindowManager;
+  private static interpreter_path: string;
 
   private constructor() {}
 
@@ -35,8 +34,15 @@ class WindowManager {
     return this.instance;
   }
 
+  static set interpreter(interpreter: string) {
+    WindowManager.interpreter_path = interpreter;
+  }
+
   createEditorWindow() {
-    const newWindow = new EditorWindow(darkMode, interpreter);
+    const newWindow = new EditorWindow(
+      darkMode,
+      WindowManager.interpreter_path
+    );
 
     newWindow.event.on("new-focus", () => this.createApplicationMenu());
 

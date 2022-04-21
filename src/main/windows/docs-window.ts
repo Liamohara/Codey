@@ -50,5 +50,3 @@ class DocsWindow extends Window {
 }
 
 export default DocsWindow;
-
-// TODO Add on-focus event listener

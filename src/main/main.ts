@@ -1,5 +1,6 @@
 // * Imports *
 
+import { exec, execSync } from "child_process";
 import { app, BrowserWindow } from "electron";
 
 import WindowManager from "./window-manager";
@@ -7,7 +8,19 @@ import createHandlers from "./api-handlers";
 
 // * Variable assignment *
 
-const isMac = process.platform === "darwin";
+const platform: string = process.platform;
+const isMac = platform === "darwin";
+
+// Finding the path of the local python version.
+const cmd = platform === "win32" ? "where python" : "which python3";
+const paths = execSync(cmd);
+const interpreter = paths.toString().split("\n")[0];
+
+// Set the path of the Python interpreter.
+WindowManager.interpreter = interpreter;
+
+// Install the Hexapod Python library globally.
+exec(`${interpreter} -m pip install -e ${__dirname}/client/`);
 
 // Squirrel launches the app multiple times with special arguments. This quits those instances.
 if (require("electron-squirrel-startup")) {
@@ -18,7 +31,7 @@ if (require("electron-squirrel-startup")) {
 
 // Create the windows and application menu once Electron has finished intialisation.
 app.whenReady().then(() => {
-  // Instante WindowManager class.
+  // Get WindowManager instance.
   const windowManager = WindowManager.getInstance();
 
   // Define API listeners for main and renderer processes communication.
@@ -45,6 +58,3 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
-
-// TODO Open Recent Files Menu
-// TODO Custom titlebar Windows and Linux
