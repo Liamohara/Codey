@@ -4,5 +4,5 @@ setup(
     name="hexapod",
     version="0.1.0",
     author="Liam O'Hara",
-    packages=find_packages(include=["hexapod"]),
+    packages=find_packages(include=["hexapod.py"]),
 )
