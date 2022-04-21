@@ -12,7 +12,7 @@ import {
 import EditorWindow from "./windows/editor-window";
 import DocsWindow from "./windows/docs-window";
 
-// * Variable Assignment *
+// * Assignment *
 
 const isMac = process.platform === "darwin";
 

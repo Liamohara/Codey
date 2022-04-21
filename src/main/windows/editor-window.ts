@@ -14,10 +14,10 @@ class EditorWindow extends Window {
 
   private interpreter: string;
   private ptyProcess: pty.IPty;
-  private ptyBuffer: string;
-  private ptyCmd: string;
+  private buffer = "";
+  private bufferCmd: string;
+  private bufferOut: string;
   private fileDir: string;
-  private fileName: string;
 
   constructor(darkMode: boolean, interpreter: string) {
     super(
@@ -27,11 +27,6 @@ class EditorWindow extends Window {
     );
 
     this.interpreter = interpreter;
-
-    this.ptyProcess = null;
-    this.fileName = null;
-    this.ptyCmd = null;
-    this.ptyBuffer = "";
 
     this.window.webContents.once("did-finish-load", () => this.initPty());
 
@@ -78,12 +73,12 @@ class EditorWindow extends Window {
     });
 
     this.ptyProcess.onData((data) => {
-      if (this.fileName) {
-        this.ptyBuffer += data;
-        if (this.ptyBuffer === this.ptyCmd + "\n") {
-          this.send("shell:stdout", `% RUN ${this.fileName} %\r\n`);
-          this.fileName = null;
-          this.ptyBuffer = "";
+      if (this.bufferCmd) {
+        this.buffer += data;
+        if (this.buffer === this.bufferCmd + "\n") {
+          this.send("shell:stdout", this.bufferOut);
+          this.bufferCmd = null;
+          this.buffer = "";
         }
       } else {
         this.send("shell:stdout", data);
@@ -101,7 +96,10 @@ class EditorWindow extends Window {
   }
 
   resetPty() {
-    this.ptyProcess.kill();
+    this.bufferOut = "";
+    this.bufferCmd = "quit()\r";
+    // Quits pty. Will restart automatically.
+    this.writeToPty(this.bufferCmd);
   }
 
   async getFile(isEdited?: boolean) {
@@ -169,7 +167,7 @@ class EditorWindow extends Window {
       content
     );
 
-    // Restarts PTY Process to change shell working directory.
+    // Resets PTY Process to change shell working directory.
     this.fileDir = path.dirname(filePath);
     this.resetPty();
   }
@@ -192,15 +190,18 @@ class EditorWindow extends Window {
   }
 
   async runFile(filePath: string, content: string) {
+    let timeout = filePath ? 0 : 500;
+
     filePath = await this.saveFile(filePath, content);
 
     if (filePath) {
       // Waiting for shell to reset.
       setTimeout(() => {
-        this.fileName = path.basename(filePath);
-        this.ptyCmd = `exec(open(r"${filePath}").read())\r`;
-        this.writeToPty(this.ptyCmd);
-      }, 500);
+        let fileName = path.basename(filePath);
+        this.bufferOut = `% RUN ${fileName} %\r\n`;
+        this.bufferCmd = `exec(open(r"${filePath}").read())\r`;
+        this.writeToPty(this.bufferCmd);
+      }, timeout);
     }
   }
 

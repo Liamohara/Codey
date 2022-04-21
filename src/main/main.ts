@@ -6,15 +6,19 @@ import { app, BrowserWindow } from "electron";
 import WindowManager from "./window-manager";
 import createHandlers from "./api-handlers";
 
-// * Variable assignment *
+// * Assignment *
 
 const platform: string = process.platform;
 const isMac = platform === "darwin";
+const isWindows = platform === "windows";
 
 // Finding the path of the local python version.
-const cmd = platform === "win32" ? "where python" : "which python3";
+// The "where" and "which" commands return paths for the given command.
+const cmd = isWindows ? "where python" : "which python3";
 const paths = execSync(cmd);
-const interpreter = paths.toString().split("\r\n")[0];
+// Separating the top path from the list.
+const separator = isWindows ? "\r\n" : "\n";
+const interpreter = paths.toString().split(separator)[0];
 
 // Set the path of the Python interpreter.
 WindowManager.interpreter = interpreter;
