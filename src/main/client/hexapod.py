@@ -28,7 +28,7 @@ class Client:
         try:
             TARGET_ADDR = socket.gethostbyname(TARGET)
         except:
-            print(error("[ERROR] Cannot find hexapod. Is it turned on?"))
+            print(error("[ERROR] Could not find hexapod. Is it turned on?"))
             return
 
         try:
