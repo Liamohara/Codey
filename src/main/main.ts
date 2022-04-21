@@ -14,7 +14,7 @@ const isMac = platform === "darwin";
 // Finding the path of the local python version.
 const cmd = platform === "win32" ? "where python" : "which python3";
 const paths = execSync(cmd);
-const interpreter = paths.toString().split("\n")[0];
+const interpreter = paths.toString().split("\r\n")[0];
 
 // Set the path of the Python interpreter.
 WindowManager.interpreter = interpreter;
