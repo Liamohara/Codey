@@ -6,7 +6,7 @@ from lib.console import cyan, error
 
 HEADER = 64
 PORT = 5050
-TARGET = "hexapod"
+TARGET = "hexapod.local"
 FORMAT = "utf-8"
 WALK_MSG = "!WALK"
 BALANCE_MSG = "!BALANCE"
@@ -19,7 +19,7 @@ class Client:
         try:
             self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         except socket.error as e:
-            print(error(f"Error creating socket: {e}"))
+            print(error(f"[ERROR] Error creating socket: {e}"))
 
     def start(self):
         print("[CONNECTING] Connecting to server...")
@@ -27,18 +27,19 @@ class Client:
         TARGET_ADDR = ""
         try:
             TARGET_ADDR = socket.gethostbyname(TARGET)
-        except:
-            print(error("[ERROR] Could not find hexapod. Is it turned on?"))
+        except socket.gaierror as e:
+            print(
+                error(f"[ERROR] Could not find hexapod. Is it turned on?: {e}"))
             return
 
         try:
             self.__socket.connect((TARGET_ADDR, PORT))
         except socket.gaierror as e:
             print(
-                error(f"Address-related error connecting to server: {e}"))
+                error(f"[ERROR] Address-related error connecting to server: {e}"))
             return
         except socket.error as e:
-            print(error(f"Connection error: {e}"))
+            print(error(f"[ERROR] Connection error: {e}"))
             return
 
         print("[CONNECTED] Connected to server.")
@@ -57,7 +58,7 @@ class Client:
                 try:
                     msg = self.__socket.recv(msg_length).decode(FORMAT)
                 except socket.error as e:
-                    print(error(f"Error receiving data: {e}"))
+                    print(error(f"[ERROR] Error receiving data: {e}"))
                     return
 
                 if msg == self.__DISCONNECT_MSG:
@@ -80,7 +81,7 @@ class Client:
             self.__socket.send(send_length)
             self.__socket.send(msg)
         except socket.error as e:
-            print(error(f"Error sending data: {e}"))
+            print(error(f"[ERROR] Error sending data: {e}"))
             return
 
     def walk(self, paces, dir):
