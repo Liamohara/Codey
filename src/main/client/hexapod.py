@@ -1,6 +1,6 @@
 # Standard library imports
 import socket
-from threading import Thread
+import threading
 
 # Local imports
 from lib.console import cyan, error
@@ -10,6 +10,7 @@ PORT = 5050
 TARGET = "hexapod.local"
 FORMAT = "utf-8"
 WALK_MSG = "!WALK"
+SET_LEG_POS_MSG = "!SET_LEG_POS"
 BALANCE_MSG = "!BALANCE"
 RELAX_MSG = "!RELAX"
 COMPLETED_MSG = "!COMPLETED"
@@ -26,7 +27,7 @@ class Client:
         except socket.error as e:
             print(error(f"[ERROR] Error creating socket: {e}"))
 
-    def start(self):
+    def connect(self):
         print("[CONNECTING] Connecting to server...")
 
         TARGET_ADDR = ""
@@ -47,9 +48,9 @@ class Client:
             print(error(f"[ERROR] Connection error: {e}"))
             return
 
-        print("[CONNECTED] Connected to server.")
+        print("[CONNECTION] Connected to server.")
 
-        Thread(self.__handler())
+        threading.Thread(target=self.__handler).start()
 
     def __handler(self):
         connected = True
@@ -69,12 +70,13 @@ class Client:
                 if msg == COMPLETED_MSG:
                     self.__completed = True
                 elif msg == DISCONNECT_MSG:
+                    self.__completed = True
                     connected = False
                 else:
-                    print(cyan(msg))
+                    print(cyan(f"Server: {msg}"))
 
         self.__socket.close()
-        print(f"[DISCONNECTED] Disconnected from server.")
+        print(f"[DISCONNECT] Disconnected from server.")
 
     def __send(self, instruction):
         msg = "#".join(instruction)
@@ -96,7 +98,10 @@ class Client:
         self.__completed = False
 
     def walk(self, paces, dir):
-        self.__send([WALK_MSG, paces, dir])
+        self.__send([WALK_MSG, str(paces), str(dir)])
+
+    def setLegPosition(self, leg, x, y, z):
+        self.__send([SET_LEG_POS_MSG, str(leg), str(x), str(y), str(z)])
 
     def balance(self):
         self.__send([BALANCE_MSG])
@@ -105,4 +110,4 @@ class Client:
         self.__send([RELAX_MSG])
 
     def disconnect(self):
-        self.__send(DISCONNECT_MSG)
+        self.__send([DISCONNECT_MSG])
