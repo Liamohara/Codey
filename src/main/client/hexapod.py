@@ -1,5 +1,6 @@
 # Standard library imports
 import socket
+from threading import Thread
 
 # Local imports
 from lib.console import cyan, error
@@ -11,11 +12,15 @@ FORMAT = "utf-8"
 WALK_MSG = "!WALK"
 BALANCE_MSG = "!BALANCE"
 RELAX_MSG = "!RELAX"
+COMPLETED_MSG = "!COMPLETED"
 DISCONNECT_MSG = "!DISCONNECT"
 
 
 class Client:
     def __init__(self):
+        # Event is set when an instructiom is fully completed by the hexapod.
+        self.__completed = False
+
         try:
             self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         except socket.error as e:
@@ -44,7 +49,7 @@ class Client:
 
         print("[CONNECTED] Connected to server.")
 
-        self.__handler()
+        Thread(self.__handler())
 
     def __handler(self):
         connected = True
@@ -61,7 +66,9 @@ class Client:
                     print(error(f"[ERROR] Error receiving data: {e}"))
                     return
 
-                if msg == self.__DISCONNECT_MSG:
+                if msg == COMPLETED_MSG:
+                    self.__completed = True
+                elif msg == DISCONNECT_MSG:
                     connected = False
                 else:
                     print(cyan(msg))
@@ -69,29 +76,33 @@ class Client:
         self.__socket.close()
         print(f"[DISCONNECTED] Disconnected from server.")
 
-    def __send_instruction(self, instruction):
+    def __send(self, instruction):
         msg = "#".join(instruction)
         msg = msg.encode(FORMAT)
 
-        msg_length = len(msg)
-        send_length = str(msg_length).encode(FORMAT)
-        send_length += b" " * (HEADER - len(send_length))
+        msg_len = len(msg)
+        send_len = str(msg_len).encode(FORMAT)
+        send_len += b" " * (HEADER - len(send_len))
 
         try:
-            self.__socket.send(send_length)
+            self.__socket.send(send_len)
             self.__socket.send(msg)
         except socket.error as e:
             print(error(f"[ERROR] Error sending data: {e}"))
             return
 
+        while not self.__completed:
+            pass
+        self.__completed = False
+
     def walk(self, paces, dir):
-        self.__send_instruction([self.__WALK_MSG, paces, dir])
+        self.__send([WALK_MSG, paces, dir])
 
     def balance(self):
-        self.__send_instruction([self.__BALANCE_MSG])
+        self.__send([BALANCE_MSG])
 
     def relax(self):
-        self.__send_instruction([self.__RELAX_MSG])
+        self.__send([RELAX_MSG])
 
     def disconnect(self):
-        self.__send_instruction(self.__DISCONNECT_MSG)
+        self.__send(DISCONNECT_MSG)
