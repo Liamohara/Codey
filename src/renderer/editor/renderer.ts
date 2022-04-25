@@ -4,7 +4,7 @@ This file will automatically be loaded by webpack and run in the "renderer" cont
 
 // * Imports *
 
-import "../../style.scss";
+import "../style.scss";
 import * as monaco from "monaco-editor";
 import monacoConfig from "./monaco-config";
 import { Terminal } from "xterm";

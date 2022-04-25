@@ -2,15 +2,15 @@
 $navbar-breakpoint: 400px;
 
 // Imports
-@import "../node_modules/bulma/bulma.sass";
-@import "../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
-@import "../node_modules/xterm/css/xterm.css";
+@import "/node_modules/bulma/bulma.sass";
+@import "/node_modules/@fortawesome/fontawesome-free/css/all.min.css";
+@import "/node_modules/xterm/css/xterm.css";
 
 // Fonts
 
 @font-face {
   font-family: "Fira Code";
-  src: url("../fonts/FiraCodeRegular.ttf");
+  src: url("/fonts/FiraCodeRegular.ttf");
   font-weight: normal;
   font-style: normal;
   font-variant-ligatures: contextual;
@@ -18,7 +18,7 @@ $navbar-breakpoint: 400px;
 
 @font-face {
   font-family: "Helvetica Neue";
-  src: url("../fonts/HelveticaNeueBold.ttf");
+  src: url("/fonts/HelveticaNeueBold.ttf");
   font-weight: bold;
   font-style: normal;
 }
