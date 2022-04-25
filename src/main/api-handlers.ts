@@ -34,7 +34,7 @@ function createHandlers(windowManager: WindowManager) {
     const targetWindowId = BrowserWindow.fromWebContents(event.sender).id;
     const targetWindow = EditorWindow.fromID(targetWindowId);
 
-    targetWindow.writeToPty(data); //!
+    targetWindow.writeToPty(data);
   });
 
   ipcMain.handle("docs:open", (_event, section) =>
